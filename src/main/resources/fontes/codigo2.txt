@@ -1,0 +1,12 @@
+principal
+
+        x := 5
+        !!Comentari!o!!
+        -
+        if (x < -10) then
+            so@m_a1 := soma1 + x
+        else
+            repeat
+                x := x + 1
+            until x > -10,500
+        end
