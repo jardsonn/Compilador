@@ -28,5 +28,5 @@ enum class Tokens(val symbol: String? = null, val description: String? = null) {
     OP_LOGIC_LESS_THAN_OR_EQUAL("<=", "Op. Lógico menor ou igual"),
     OP_LOGIC_GREATER_THAN_OR_EQUAL(">=", "Op. Lógico maior ou igual"),
     OP_MINUS_ASSIGNMENT("-=", "Op. subtração e atribuição"),
-    UNKNOWN(description = "Desconhecido"),
+    ERROR(description = "Erro"),
 }

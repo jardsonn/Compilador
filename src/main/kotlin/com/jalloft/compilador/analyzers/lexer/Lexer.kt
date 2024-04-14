@@ -12,28 +12,27 @@ class Lexer(private val source: String) {
 
         skipWhitespace()
 
-        skipComment()
+        val isSkippedComment = skipComment()
+
+        if (!isSkippedComment) {
+            return Token(Tokens.ERROR, "!!", observation = "Comentário multilinha não fechado.")
+        }
 
         val currentChar = source.getOrNull(currentPosition) ?: return null
 
-        val token: Token?
-        when {
-            currentChar.isLetter() -> token = scanIdentifierOrKeyword()
-            currentChar.isDigit() || isMinusSign(currentChar) -> token = scanNumber()
-            currentChar in SPECIAL_SYMBOLS -> token = scanSpecialSymbol()
+        val token: Token = when {
+            currentChar.isLetter() -> scanIdentifierOrKeyword()
+            currentChar.isDigit() || currentChar.isNextNegativeDigit() -> scanNumber()
+            currentChar in SPECIAL_SYMBOLS -> scanSpecialSymbol()
             else -> {
                 currentPosition++
-                token = Token(Tokens.UNKNOWN, currentChar.toString(), "Símbolo não reconhecido")
+                Token(Tokens.ERROR, currentChar.toString(), "Símbolo não reconhecido")
             }
         }
 
         return token
     }
 
-
-    private fun isMinusSign(char: Char): Boolean {
-        return (char == '-' && (currentPosition + 1) < source.length && source[currentPosition + 1].isDigit())
-    }
 
     private fun scanIdentifierOrKeyword(): Token {
         val startIndex = currentPosition
@@ -75,9 +74,8 @@ class Lexer(private val source: String) {
                         state = 3
                     } else if (char == '_') {
                         state = 2
-                    } else if (char == '@') {// perguntar para a professora
+                    } else if (char == '@') {
                         isError = true
-//                        break
                     } else {
                         break
                     }
@@ -96,9 +94,8 @@ class Lexer(private val source: String) {
                         state = 5
                     } else if (char == '@') {
                         state = 4
-                    } else if (char == '_') {// perguntar para a professora
+                    } else if (char == '_') {
                         isError = true
-//                        break
                     } else {
                         break
                     }
@@ -123,7 +120,6 @@ class Lexer(private val source: String) {
         } else if (state == 3 || state == 5) {
             Token(Tokens.IDENTIFIER, lexeme)
         } else {
-//            throw LexicalErrorException("$lexeme não é um identificador válido")
             return Token(Tokens.IDENTIFIER, lexeme, "Identificador inválido")
         }
     }
@@ -183,8 +179,7 @@ class Lexer(private val source: String) {
         return when (state) {
             1 -> Token(Tokens.INTEGER_NUMBER, lexeme)
             4 -> Token(Tokens.DECIMAL_NUMBER, lexeme)
-//            else -> throw LexicalErrorException("O $lexeme é um símbolo não reconhecido")
-            else -> Token(Tokens.UNKNOWN, lexeme, "Formato de número inválido")
+            else -> Token(Tokens.ERROR, lexeme, "Formato de número inválido")
 
         }
     }
@@ -197,12 +192,12 @@ class Lexer(private val source: String) {
             val char = source[currentPosition]
             when (state) {
                 0 -> {
-                    if (char == '>' || char == '-' || char == ':') {
-                        state = 1
+                    state = if (char == '>' || char == '-' || char == ':') {
+                        1
                     } else if (char == '<') {
-                        state = 2
+                        2
                     } else if (char in SPECIAL_SYMBOLS) {
-                        state = 3
+                        3
                     } else {
                         break
                     }
@@ -229,19 +224,18 @@ class Lexer(private val source: String) {
             currentPosition++
         }
         val lexeme = source.substring(startIndex, currentPosition)
-        if (state != 0) {
-            return Token(Tokens.entries.find { it.symbol == lexeme } ?: Tokens.SPECIAL_SYMBOL, lexeme)
+        return if (state != 0) {
+            Token(Tokens.entries.find { it.symbol == lexeme } ?: Tokens.SPECIAL_SYMBOL, lexeme)
         } else {
-            return Token(Tokens.UNKNOWN, lexeme, "Símbolo não reconhecido")
+            Token(Tokens.ERROR, lexeme, "Símbolo não reconhecido")
         }
 
     }
 
-    private fun skipComment() {
+    private fun skipComment(): Boolean {
         var state = 0
         if (source.getOrNull(currentPosition) == '!') {
             while (currentPosition < source.length) {
-//                skipWhitespace()
                 val char = source[currentPosition]
                 when (state) {
                     0 -> {
@@ -253,22 +247,22 @@ class Lexer(private val source: String) {
                     }
 
                     1 -> {
-                        if (char == '!') {
-                            state = 6
+                        state = if (char == '!') {
+                            6
                         } else if (char.isLineBreak()) {
-                            state = 3
+                            3
                         } else if (char.isLetterOrDigit() || char in SPECIAL_SYMBOLS || char.isWhitespace()) {
-                            state = 2
+                            2
                         } else {
                             break
                         }
                     }
 
                     2 -> {
-                        if (char.isLineBreak()) {
-                            state = 3
+                        state = if (char.isLineBreak()) {
+                            3
                         } else if (char.isLetterOrDigit() || char in SPECIAL_SYMBOLS || char == '!' || char.isWhitespace()) {
-                            state = 2
+                            2
                         } else {
                             break
                         }
@@ -290,13 +284,14 @@ class Lexer(private val source: String) {
                     }
 
                     5 -> {
-                        state = if (char.isLetterOrDigit() || char.isLineBreak() || char in SPECIAL_SYMBOLS || char.isWhitespace()) {
-                            5
-                        } else if (char == '!') {
-                            4
-                        } else {
-                            break
-                        }
+                        state =
+                            if (char.isLetterOrDigit() || char.isLineBreak() || char in SPECIAL_SYMBOLS || char.isWhitespace()) {
+                                5
+                            } else if (char == '!') {
+                                4
+                            } else {
+                                break
+                            }
                     }
 
                     6 -> {
@@ -311,7 +306,11 @@ class Lexer(private val source: String) {
                 }
                 currentPosition++
             }
+        } else {
+            return true
         }
+
+        return state == 3
     }
 
 
@@ -323,6 +322,9 @@ class Lexer(private val source: String) {
 
     private fun Char.isLineBreak() = this == '\n' || this == '\r'
 
+    private fun Char.isNextNegativeDigit(): Boolean {
+        return (this == '-' && (currentPosition + 1) < source.length && source[currentPosition + 1].isDigit())
+    }
 
     companion object {
         private val KEYWORDS = setOf(
@@ -346,7 +348,7 @@ class Lexer(private val source: String) {
             "begin"
         )
         private val SPECIAL_SYMBOLS = setOf(
-            ';', ',', '.', '+', '*', '(', ')', '=', '{', '}', '/', '@', /*'_',*/ /*'"',*/ /*'\'',*/ '>', '<', ':', '-',
+            ';', ',', '.', '+', '*', '(', ')', '=', '{', '}', '/', '@', '>', '<', ':', '-',
         )
     }
 }
