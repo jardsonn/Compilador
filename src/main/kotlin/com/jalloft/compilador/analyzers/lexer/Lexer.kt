@@ -251,20 +251,16 @@ class Lexer(private val source: String) {
                             6
                         } else if (char.isLineBreak()) {
                             3
-                        } else if (char.isLetterOrDigit() || char in SPECIAL_SYMBOLS || char.isWhitespace()) {
-                            2
                         } else {
-                            break
+                            2
                         }
                     }
 
                     2 -> {
                         state = if (char.isLineBreak()) {
                             3
-                        } else if (char.isLetterOrDigit() || char in SPECIAL_SYMBOLS || char == '!' || char.isWhitespace()) {
-                            2
                         } else {
-                            break
+                            2
                         }
                     }
 
@@ -276,31 +272,24 @@ class Lexer(private val source: String) {
                     4 -> {
                         state = if (char == '!') {
                             3
-                        } else if (char.isLetterOrDigit() || char in SPECIAL_SYMBOLS || char.isWhitespace()) {
-                            5
                         } else {
-                            break
+                            5
                         }
                     }
 
                     5 -> {
-                        state =
-                            if (char.isLetterOrDigit() || char.isLineBreak() || char in SPECIAL_SYMBOLS || char.isWhitespace()) {
-                                5
-                            } else if (char == '!') {
-                                4
-                            } else {
-                                break
-                            }
+                        state = if (char == '!') {
+                            4
+                        } else {
+                            5
+                        }
                     }
 
                     6 -> {
                         state = if (char == '!') {
                             4
-                        } else if (char.isLetterOrDigit() || char in SPECIAL_SYMBOLS || char.isWhitespace()) {
-                            5
                         } else {
-                            break
+                            5
                         }
                     }
                 }

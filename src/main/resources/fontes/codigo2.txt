@@ -1,10 +1,11 @@
 principal
 
         x := 5
-        !!Comentari!o!!
+        !!Coment?ari!o!!
+        ?
         -
         if (x < -10) then
-            so_ma1 := soma1 + x
+            so@m1a := soma1 + x
         else
             repeat
                 x := x + 1

@@ -14,7 +14,7 @@ fun main() {
     do {
         println(token)
         token = lexer.getNextToken()
-    } while (token != null && token.classification != Tokens.ERROR)
+    } while (token != null)
 
 
 }

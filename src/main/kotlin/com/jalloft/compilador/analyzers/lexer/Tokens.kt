@@ -4,7 +4,7 @@ package com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer
 enum class Tokens(val symbol: String? = null, val description: String? = null) {
     IDENTIFIER(description = "Identificador"),
     KEYWORD(description = "Palavra reservada"),
-    INTEGER_NUMBER(description = "Número interio"),
+    INTEGER_NUMBER(description = "Número inteiro"),
     DECIMAL_NUMBER(description = "Número decimal"),
     SEMICOLON(";", "Ponto e vírgula"),
     SPECIAL_SYMBOL(description = "Símbolo especial"),
