@@ -2,6 +2,7 @@ package com.jalloft.compilador
 
 import com.google.common.io.Resources
 import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.Lexer
+import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.TokenBase
 import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.Tokens
 
 fun main() {
@@ -9,12 +10,17 @@ fun main() {
     val source = Resources.getResource(sourcePath).readText()
     val lexer = Lexer(source)
 
-    var token = lexer.getNextToken()
+    var tokenBase = lexer.getNextToken()
 
-    do {
-        println(token)
-        token = lexer.getNextToken()
-    } while (token != null)
-
-
+    while (lexer.hasNext()) {
+        val token = when (tokenBase) {
+            is TokenBase.Token -> tokenBase
+            is TokenBase.UnformedToken -> {
+                println(tokenBase.errorMessage)
+                return
+            }
+        }
+        println("${token.lexeme}  ⇐------------------------------⇒   ${token.classification.description}")
+        tokenBase = lexer.getNextToken()
+    }
 }

@@ -2,12 +2,12 @@ principal
 
         x := 5
         !!Coment?ari!o!!
-        ?
+
         -
         if (x < -10) then
             so@m1a := soma1 + x
         else
             repeat
                 x := x + 1
-            until x > -10,500
+            until x > -10,0
         end

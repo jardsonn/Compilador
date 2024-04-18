@@ -1,32 +1,47 @@
 package com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer
 
+import kotlin.math.max
+import kotlin.math.min
+
 class Lexer(private val source: String) {
 
+    private var hasNextPosition = 0
+
     private var currentPosition = 0
+        set(value) {
+            hasNextPosition = value
+            field = value
+        }
 
     fun hasNext(): Boolean {
-        return currentPosition < source.length
+        val hasNext = hasNextPosition <= source.length
+        if (hasNextPosition == source.length){
+            hasNextPosition++
+        }
+        return hasNext
     }
 
-    fun getNextToken(): Token? {
+
+    fun getNextToken(): TokenBase {
 
         skipWhitespace()
 
         val isSkippedComment = skipComment()
 
         if (!isSkippedComment) {
-            return Token(Tokens.ERROR, "!!", observation = "Comentário multilinha não fechado.")
+            return TokenBase.UnformedToken("Erro Lexical: Comentário multilinha não fechado.")
         }
 
-        val currentChar = source.getOrNull(currentPosition) ?: return null
+        val currentChar = source[min(currentPosition, source.lastIndex)]
 
-        val token: Token = when {
+        val token: TokenBase = when {
             currentChar.isLetter() -> scanIdentifierOrKeyword()
             currentChar.isDigit() || currentChar.isNextNegativeDigit() -> scanNumber()
             currentChar in SPECIAL_SYMBOLS -> scanSpecialSymbol()
             else -> {
                 currentPosition++
-                Token(Tokens.ERROR, currentChar.toString(), "Símbolo não reconhecido")
+                return TokenBase.UnformedToken("Erro Lexical: Símbolo $currentChar é desconhecido.")
+
             }
         }
 
@@ -34,7 +49,7 @@ class Lexer(private val source: String) {
     }
 
 
-    private fun scanIdentifierOrKeyword(): Token {
+    private fun scanIdentifierOrKeyword(): TokenBase {
         val startIndex = currentPosition
         var state = 0
         var isError = false
@@ -108,24 +123,25 @@ class Lexer(private val source: String) {
         val lexeme = source.substring(startIndex, currentPosition)
 
         if (isError) {
-            return Token(Tokens.IDENTIFIER, lexeme, "Identificador inválido")
+            return TokenBase.UnformedToken("Erro Lexical: Identificador $lexeme é inválido.")
+
         }
 
         return if (state == 1) {
             if (lexeme in KEYWORDS) {
-                Token(Tokens.KEYWORD, lexeme)
+                TokenBase.Token(Tokens.KEYWORD, lexeme)
             } else {
-                Token(Tokens.IDENTIFIER, lexeme)
+                TokenBase.Token(Tokens.IDENTIFIER, lexeme)
             }
         } else if (state == 3 || state == 5) {
-            Token(Tokens.IDENTIFIER, lexeme)
+            TokenBase.Token(Tokens.IDENTIFIER, lexeme)
         } else {
-            return Token(Tokens.IDENTIFIER, lexeme, "Identificador inválido")
+            return TokenBase.UnformedToken("Erro Lexical: Identificador $lexeme é inválido.")
         }
     }
 
 
-    private fun scanNumber(): Token {
+    private fun scanNumber(): TokenBase {
         val startIndex = currentPosition
         var state = 0
 
@@ -177,15 +193,16 @@ class Lexer(private val source: String) {
 
         val lexeme = source.substring(startIndex, currentPosition)
         return when (state) {
-            1 -> Token(Tokens.INTEGER_NUMBER, lexeme)
-            4 -> Token(Tokens.DECIMAL_NUMBER, lexeme)
-            else -> Token(Tokens.ERROR, lexeme, "Formato de número inválido")
+            1 -> TokenBase.Token(Tokens.INTEGER_NUMBER, lexeme)
+            4 -> TokenBase.Token(Tokens.DECIMAL_NUMBER, lexeme)
+            else -> TokenBase.UnformedToken("Erro Lexical: Formato de número inválido")
+
 
         }
     }
 
 
-    private fun scanSpecialSymbol(): Token {
+    private fun scanSpecialSymbol(): TokenBase {
         val startIndex = currentPosition
         var state = 0
         while (currentPosition < source.length) {
@@ -225,9 +242,9 @@ class Lexer(private val source: String) {
         }
         val lexeme = source.substring(startIndex, currentPosition)
         return if (state != 0) {
-            Token(Tokens.entries.find { it.symbol == lexeme } ?: Tokens.SPECIAL_SYMBOL, lexeme)
+            TokenBase.Token(Tokens.entries.find { it.symbol == lexeme } ?: Tokens.SPECIAL_SYMBOL, lexeme)
         } else {
-            Token(Tokens.ERROR, lexeme, "Símbolo não reconhecido")
+            TokenBase.UnformedToken("Erro Lexical: Símbolo $lexeme é desconhecido.")
         }
 
     }
