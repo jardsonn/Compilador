@@ -1,4 +1,4 @@
-package com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer
+package com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token
 
 
 enum class Tokens(val symbol: String? = null, val description: String? = null) {

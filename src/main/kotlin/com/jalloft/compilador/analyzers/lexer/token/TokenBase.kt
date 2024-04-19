@@ -1,4 +1,4 @@
-package com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer
+package com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token
 
 
 sealed class TokenBase {
