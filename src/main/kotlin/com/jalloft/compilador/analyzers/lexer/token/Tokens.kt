@@ -1,7 +1,7 @@
 package com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token
 
 
-enum class Tokens(val symbol: String? = null, val description: String? = null) {
+enum class Tokens(val symbol: String? = null, val description: String) {
     IDENTIFIER(description = "Identificador"),
     KEYWORD(description = "Palavra reservada"),
     INTEGER_NUMBER(description = "Número inteiro"),

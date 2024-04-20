@@ -10,6 +10,8 @@ import kotlin.math.min
 
 class Lexer(private val source: String) {
 
+    private var currentLine = 1
+
     private var hasNextPosition = 0
 
     private var currentPosition = 0
@@ -34,7 +36,11 @@ class Lexer(private val source: String) {
         val isSkippedComment = skipComment()
 
         if (!isSkippedComment) {
-            return TokenBase.UnformedToken("Erro Lexical: Comentário multilinha não fechado.")
+            return TokenBase.UnformedToken("Erro Lexical","Comentário multilinha não fechado.", currentLine)
+        }
+
+        if (source.trim().isEmpty()){
+            return TokenBase.UnformedToken("Erro Lexical", "Arquivo vazio", currentLine)
         }
 
         val currentChar = source[min(currentPosition, source.lastIndex)]
@@ -45,8 +51,7 @@ class Lexer(private val source: String) {
             currentChar in SPECIAL_SYMBOLS -> scanSpecialSymbol()
             else -> {
                 currentPosition++
-                return TokenBase.UnformedToken("Erro Lexical: Símbolo $currentChar é desconhecido.")
-
+                return TokenBase.UnformedToken("Erro Lexical"," Símbolo $currentChar é desconhecido.", currentLine)
             }
         }
 
@@ -90,12 +95,10 @@ class Lexer(private val source: String) {
                 }
 
                 IdentifiersKeywordStates.STATE_3 -> {
-                    if (char.isLetterOrDigit()) {
-                        state = IdentifiersKeywordStates.STATE_3
+                    state = if (char.isLetterOrDigit()) {
+                        IdentifiersKeywordStates.STATE_3
                     } else if (char == '_') {
-                        state = IdentifiersKeywordStates.STATE_2
-                    } else if (char == '@') {
-                        isError = true
+                        IdentifiersKeywordStates.STATE_2
                     } else {
                         break
                     }
@@ -128,20 +131,19 @@ class Lexer(private val source: String) {
         val lexeme = source.substring(startIndex, currentPosition)
 
         if (isError) {
-            return TokenBase.UnformedToken("Erro Lexical: Identificador $lexeme é inválido.")
-
+            return TokenBase.UnformedToken("Erro Lexical","Identificador $lexeme é inválido.", currentLine)
         }
 
         return if (state == IdentifiersKeywordStates.STATE_1) {
             if (lexeme in KEYWORDS) {
-                TokenBase.Token(Tokens.KEYWORD, lexeme)
+                TokenBase.Token(Tokens.KEYWORD, lexeme, currentLine)
             } else {
-                TokenBase.Token(Tokens.IDENTIFIER, lexeme)
+                TokenBase.Token(Tokens.IDENTIFIER, lexeme, currentLine)
             }
         } else if (state == IdentifiersKeywordStates.STATE_3 || state == IdentifiersKeywordStates.STATE_5) {
-            TokenBase.Token(Tokens.IDENTIFIER, lexeme)
+            TokenBase.Token(Tokens.IDENTIFIER, lexeme, currentLine)
         } else {
-            return TokenBase.UnformedToken("Erro Lexical: Identificador $lexeme é inválido.")
+            return TokenBase.UnformedToken("Erro Lexical","Identificador $lexeme é inválido.", currentLine)
         }
     }
 
@@ -198,9 +200,9 @@ class Lexer(private val source: String) {
 
         val lexeme = source.substring(startIndex, currentPosition)
         return when (state) {
-            DigitStates.STATE_1 -> TokenBase.Token(Tokens.INTEGER_NUMBER, lexeme)
-            DigitStates.STATE_4 -> TokenBase.Token(Tokens.DECIMAL_NUMBER, lexeme)
-            else -> TokenBase.UnformedToken("Erro Lexical: Formato de número inválido")
+            DigitStates.STATE_1 -> TokenBase.Token(Tokens.INTEGER_NUMBER, lexeme, currentLine)
+            DigitStates.STATE_4 -> TokenBase.Token(Tokens.DECIMAL_NUMBER, lexeme, currentLine)
+            else -> TokenBase.UnformedToken("Erro Lexical","Formato de número inválido.", currentLine)
 
 
         }
@@ -247,9 +249,10 @@ class Lexer(private val source: String) {
         }
         val lexeme = source.substring(startIndex, currentPosition)
         return if (state != SymbolStates.STATE_0) {
-            TokenBase.Token(Tokens.entries.find { it.symbol == lexeme } ?: Tokens.SPECIAL_SYMBOL, lexeme)
+//            TokenBase.Token(Tokens.entries.find { it.symbol == lexeme } ?: Tokens.SPECIAL_SYMBOL, lexeme, currentLine)
+            TokenBase.Token(Tokens.SPECIAL_SYMBOL, lexeme, currentLine)
         } else {
-            TokenBase.UnformedToken("Erro Lexical: Símbolo $lexeme é desconhecido.")
+            TokenBase.UnformedToken("Erro Lexical","Símbolo $lexeme é desconhecido.", currentLine)
         }
 
     }
@@ -327,7 +330,14 @@ class Lexer(private val source: String) {
 
     private fun skipWhitespace() {
         while (currentPosition < source.length && source[currentPosition].isWhitespace()) {
+            countLine()
             currentPosition++
+        }
+    }
+
+    private fun countLine() {
+        if (source[currentPosition].isLineBreak()) {
+            currentLine++
         }
     }
 
