@@ -14,12 +14,11 @@ Os identificadores são compostos por letras (maiúsculas ou minúsculas), núme
 - z_teste
 - u_teste123ab
 - u_12tes3
-- soma_peso_nota
+- s_o_mapesonota
 - somaPeso
 - PESO_TOTAL
-- abacaxi_1_doce
-- usu@rio
-- c@minh@o
+- u@rio
+- c@m@inhao
 
 ### Exemplos de identificadores inválidos:
 - 1xPeso
@@ -112,7 +111,7 @@ O analisador léxico deve identificar números inteiros (positivos ou negativos)
 Os autômatos são essenciais na análise e reconhecimento de padrões dentro do código-fonte, permitindo a identificação de tokens, como identificadores, palavras reservadas, símbolos especiais e números.
 
 ## Identificadores e Palavras Reservadas
-<img src="./automatos/automato_identificadores_palavras_reservadas.png" alt="Identificadores e Palavras Reservadas"/>
+<img src="./automatos/automato_identificadores_palavras_reservadas_2.png" alt="Identificadores e Palavras Reservadas"/>
 
 ## Dígitos
 <img src="./automatos/automato_digitos.png" alt="Dígitos"/>
