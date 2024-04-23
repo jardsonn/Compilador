@@ -1,0 +1,12 @@
+exemploID;
+!!Comentario de multilinha!!
+! Comentario de uma linha
+@@ Comentario de uma linha
++
+// Comentario de multilinha
+
+Comentario de multilinha
+
+Fim Comentario
+//
+digito=4,8

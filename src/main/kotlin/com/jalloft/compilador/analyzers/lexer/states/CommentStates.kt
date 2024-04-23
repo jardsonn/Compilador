@@ -8,4 +8,7 @@ object CommentStates {
     const val STATE_4 = 4
     const val STATE_5 = 5
     const val STATE_6 = 6
+    const val STATE_7 = 7
+    const val STATE_8 = 8
+    const val STATE_9 = 9
 }

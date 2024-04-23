@@ -4,9 +4,13 @@ import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states.Comm
 import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states.DigitStates
 import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states.IdentifiersKeywordStates
 import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states.SymbolStates
-import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.TokenBase
+import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.Lexical
+import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.Token
 import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.Tokens
-import kotlin.math.min
+import com.jalloft.compilador.com.jalloft.compilador.errors.LexicalError
+import com.jalloft.compilador.com.jalloft.compilador.errors.ErrorType
+import com.jalloft.compilador.com.jalloft.compilador.utils.exitProcess
+import com.jalloft.compilador.com.jalloft.compilador.utils.exitProcessWithError
 
 class Lexer(private val source: String) {
 
@@ -29,40 +33,46 @@ class Lexer(private val source: String) {
     }
 
 
-    fun getNextToken(): TokenBase {
-
+    fun getNextToken(): Token {
         skipWhitespace()
 
-        val isSkippedComment = skipComment()
-
-        if (!isSkippedComment) {
-            return TokenBase.UnformedToken("Erro Lexical", "Comentário multilinha não fechado.", currentLine)
-        }
-
         if (source.trim().isEmpty()) {
-            return TokenBase.UnformedToken("Erro Lexical", "Arquivo vazio", currentLine)
+            exitProcessWithError(LexicalError(message = "Arquivo vazio", line = currentLine))
         }
 
-        val currentChar = source[min(currentPosition, source.lastIndex)]
+        scanComment()
 
-        val token: TokenBase = when {
-            currentChar.isLetter() -> scanIdentifierOrKeyword()
-            currentChar.isDigit() || currentChar.isNextNegativeDigit() -> scanNumber()
+        val currentChar = source.getOrNull(currentPosition)
+
+        if (currentChar == null) {
+            exitProcess()
+        }
+
+        val token: Lexical = when {
+            currentChar?.isLetter() == true -> scanIdentifierOrKeyword()
+            currentChar?.isDigit() == true || currentChar?.isNextNegativeDigit() == true -> scanNumber()
             currentChar in SPECIAL_SYMBOLS -> scanSpecialSymbol()
             else -> {
                 currentPosition++
-                return TokenBase.UnformedToken("Erro Lexical", " Símbolo $currentChar é desconhecido.", currentLine)
+                LexicalError(
+                    message = " Símbolo \"$currentChar\" é desconhecido.",
+                    line = currentLine
+                )
             }
         }
 
-        return token
+        if (token is LexicalError){
+            exitProcessWithError(token)
+        }
+
+        return token as Token
     }
 
 
-    private fun scanIdentifierOrKeyword(): TokenBase {
+    private fun scanIdentifierOrKeyword(): Lexical {
         val startIndex = currentPosition
         var state = IdentifiersKeywordStates.STATE_0
-        var isError = false
+
         while (currentPosition < source.length) {
             val char = source[currentPosition]
             when (state) {
@@ -78,9 +88,9 @@ class Lexer(private val source: String) {
                     if (char.isLetterOrDigit()) {
                         state = IdentifiersKeywordStates.STATE_2
                     } else if (char == '_') {
-                        state = IdentifiersKeywordStates.STATE_4
+                        state = IdentifiersKeywordStates.STATE_3
                     } else if (char == '@') {
-                        state = IdentifiersKeywordStates.STATE_6
+                        state = IdentifiersKeywordStates.STATE_5
                     } else {
                         break
                     }
@@ -96,7 +106,7 @@ class Lexer(private val source: String) {
 
                 IdentifiersKeywordStates.STATE_3 -> {
                     if (char.isLetterOrDigit()) {
-                        state = IdentifiersKeywordStates.STATE_2
+                        state = IdentifiersKeywordStates.STATE_4
                     } else {
                         break
                     }
@@ -104,15 +114,7 @@ class Lexer(private val source: String) {
 
                 IdentifiersKeywordStates.STATE_4 -> {
                     if (char.isLetterOrDigit()) {
-                        state = IdentifiersKeywordStates.STATE_5
-                    } else {
-                        break
-                    }
-                }
-
-                IdentifiersKeywordStates.STATE_5 -> {
-                    if (char.isLetterOrDigit()) {
-                        state = IdentifiersKeywordStates.STATE_2
+                        state = IdentifiersKeywordStates.STATE_4
                     } else if (char == '_') {
                         state = IdentifiersKeywordStates.STATE_3
                     } else {
@@ -120,18 +122,19 @@ class Lexer(private val source: String) {
                     }
                 }
 
-                IdentifiersKeywordStates.STATE_6 -> {
+                IdentifiersKeywordStates.STATE_5 -> {
                     if (char.isLetterOrDigit()) {
-                        state = IdentifiersKeywordStates.STATE_7
+                        state = IdentifiersKeywordStates.STATE_6
                     } else {
                         break
                     }
                 }
-                IdentifiersKeywordStates.STATE_7 -> {
+
+                IdentifiersKeywordStates.STATE_6 -> {
                     if (char.isLetterOrDigit()) {
-                        state = IdentifiersKeywordStates.STATE_2
+                        state = IdentifiersKeywordStates.STATE_6
                     } else if (char == '@') {
-                        state = IdentifiersKeywordStates.STATE_3
+                        state = IdentifiersKeywordStates.STATE_5
                     } else {
                         break
                     }
@@ -142,115 +145,22 @@ class Lexer(private val source: String) {
 
         val lexeme = source.substring(startIndex, currentPosition)
 
-        if (isError) {
-            return TokenBase.UnformedToken("Erro Lexical", "Identificador $lexeme é inválido.", currentLine)
-        }
 
-        return if (state == IdentifiersKeywordStates.STATE_1 || state == IdentifiersKeywordStates.STATE_5 || state == IdentifiersKeywordStates.STATE_7){
-            TokenBase.Token(Tokens.IDENTIFIER, lexeme, currentLine)
-        }else if (state == IdentifiersKeywordStates.STATE_2){
+        return if (state == IdentifiersKeywordStates.STATE_1 || state == IdentifiersKeywordStates.STATE_4 || state == IdentifiersKeywordStates.STATE_6) {
+            Token(Tokens.IDENTIFIER, lexeme, currentLine)
+        } else if (state == IdentifiersKeywordStates.STATE_2) {
             if (lexeme in KEYWORDS) {
-                TokenBase.Token(Tokens.KEYWORD, lexeme, currentLine)
+                Token(Tokens.KEYWORD, lexeme, currentLine)
             } else {
-                TokenBase.Token(Tokens.IDENTIFIER, lexeme, currentLine)
+                Token(Tokens.IDENTIFIER, lexeme, currentLine)
             }
-        }else{
-             TokenBase.UnformedToken("Erro Lexical", "Identificador $lexeme é inválido.", currentLine)
-
+        } else {
+            LexicalError(message = "Identificador \"$lexeme\" é inválido.", line = currentLine)
         }
     }
 
 
-//    private fun scanIdentifierOrKeyword(): TokenBase {
-//        val startIndex = currentPosition
-//        var state = IdentifiersKeywordStates.STATE_0
-//        var isError = false
-//        while (currentPosition < source.length) {
-//            val char = source[currentPosition]
-//            when (state) {
-//                IdentifiersKeywordStates.STATE_0 -> {
-//                    if (char.isLetter()) {
-//                        state = IdentifiersKeywordStates.STATE_1
-//                    } else {
-//                        break
-//                    }
-//                }
-//
-//                IdentifiersKeywordStates.STATE_1 -> {
-//                    state = if (char.isLetterOrDigit()) {
-//                        IdentifiersKeywordStates.STATE_1
-//                    } else if (char == '_') {
-//                        IdentifiersKeywordStates.STATE_2
-//                    } else if (char == '@') {
-//                        IdentifiersKeywordStates.STATE_4
-//                    } else {
-//                        break
-//                    }
-//                }
-//
-//                IdentifiersKeywordStates.STATE_2 -> {
-//                    if (char.isLetterOrDigit()) {
-//                        state = IdentifiersKeywordStates.STATE_3
-//                    } else {
-//                        break
-//                    }
-//                }
-//
-//                IdentifiersKeywordStates.STATE_3 -> {
-//                    state = if (char.isLetterOrDigit()) {
-//                        IdentifiersKeywordStates.STATE_3
-//                    } else if (char == '_') {
-//                        IdentifiersKeywordStates.STATE_2
-//                    } else {
-//                        break
-//                    }
-//                }
-//
-//                IdentifiersKeywordStates.STATE_4 -> {
-//                    if (char.isLetterOrDigit()) {
-//                        state = IdentifiersKeywordStates.STATE_5
-//                    } else {
-//                        break
-//                    }
-//                }
-//
-//                IdentifiersKeywordStates.STATE_5 -> {
-//                    if (char.isLetterOrDigit()) {
-//                        state = IdentifiersKeywordStates.STATE_5
-//                    } else if (char == '@') {
-//                        state = IdentifiersKeywordStates.STATE_4
-//                    } else if (char == '_') {
-//                        isError = true
-//                    } else {
-//                        break
-//                    }
-//                }
-//
-//            }
-//            currentPosition++
-//        }
-//
-//        val lexeme = source.substring(startIndex, currentPosition)
-//
-//        if (isError) {
-//            return TokenBase.UnformedToken("Erro Lexical", "Identificador $lexeme é inválido.", currentLine)
-//        }
-//
-//        return if (state == IdentifiersKeywordStates.STATE_1) {
-//            if (lexeme in KEYWORDS) {
-//                TokenBase.Token(Tokens.KEYWORD, lexeme, currentLine)
-//            } else {
-//                TokenBase.Token(Tokens.IDENTIFIER, lexeme, currentLine)
-//            }
-//        } else if (state == IdentifiersKeywordStates.STATE_3 || state == IdentifiersKeywordStates.STATE_5) {
-//            TokenBase.Token(Tokens.IDENTIFIER, lexeme, currentLine)
-//        } else {
-//            return TokenBase.UnformedToken("Erro Lexical", "Identificador $lexeme é inválido.", currentLine)
-//        }
-//    }
-
-
-    private fun scanNumber(): TokenBase {
+    private fun scanNumber(): Lexical {
         val startIndex = currentPosition
         var state = DigitStates.STATE_0
 
@@ -302,16 +212,14 @@ class Lexer(private val source: String) {
 
         val lexeme = source.substring(startIndex, currentPosition)
         return when (state) {
-            DigitStates.STATE_1 -> TokenBase.Token(Tokens.INTEGER_NUMBER, lexeme, currentLine)
-            DigitStates.STATE_4 -> TokenBase.Token(Tokens.DECIMAL_NUMBER, lexeme, currentLine)
-            else -> TokenBase.UnformedToken("Erro Lexical", "Formato de número inválido.", currentLine)
-
-
+            DigitStates.STATE_1 -> Token(Tokens.INTEGER_NUMBER, lexeme, currentLine)
+            DigitStates.STATE_4 -> Token(Tokens.DECIMAL_NUMBER, lexeme, currentLine)
+            else -> LexicalError(message = "Formato de número inválido.", line = currentLine)
         }
     }
 
 
-    private fun scanSpecialSymbol(): TokenBase {
+    private fun scanSpecialSymbol(): Lexical {
         val startIndex = currentPosition
         var state = SymbolStates.STATE_0
         while (currentPosition < source.length) {
@@ -352,81 +260,122 @@ class Lexer(private val source: String) {
         val lexeme = source.substring(startIndex, currentPosition)
         return if (state != SymbolStates.STATE_0) {
 //            TokenBase.Token(Tokens.entries.find { it.symbol == lexeme } ?: Tokens.SPECIAL_SYMBOL, lexeme, currentLine)
-            TokenBase.Token(Tokens.SPECIAL_SYMBOL, lexeme, currentLine)
+            Token(Tokens.SPECIAL_SYMBOL, lexeme, currentLine)
         } else {
-            TokenBase.UnformedToken("Erro Lexical", "Símbolo $lexeme é desconhecido.", currentLine)
+            LexicalError(message = "Símbolo $lexeme é desconhecido.", line = currentLine)
         }
 
     }
 
-    private fun skipComment(): Boolean {
-        var state = CommentStates.STATE_0
-        if (source.getOrNull(currentPosition) == '!') {
+    private fun scanComment() {
+        var commentine = currentLine
+        if (source.getOrNull(currentPosition)?.isComment() == true) {
+            var state = CommentStates.STATE_0
             while (currentPosition < source.length) {
                 val char = source[currentPosition]
                 when (state) {
                     CommentStates.STATE_0 -> {
-                        if (char == '!') {
+                        if (char == '@') {
                             state = CommentStates.STATE_1
+                        } else if (char == '/') {
+                            state = CommentStates.STATE_3
+                        } else if (char == '!') {
+                            state = CommentStates.STATE_4
                         } else {
                             break
                         }
                     }
 
                     CommentStates.STATE_1 -> {
-                        state = if (char == '!') {
-                            CommentStates.STATE_6
-                        } else if (char.isLineBreak()) {
-                            CommentStates.STATE_3
+                        if (char == '@') {
+                            state = CommentStates.STATE_2
                         } else {
-                            CommentStates.STATE_2
+                            break
                         }
                     }
 
                     CommentStates.STATE_2 -> {
-                        state = if (char.isLineBreak()) {
-                            CommentStates.STATE_3
+                        if (char.isLineBreak()) {
+                            state = CommentStates.STATE_9
                         } else {
-                            CommentStates.STATE_2
+                            state = CommentStates.STATE_2
                         }
                     }
 
                     CommentStates.STATE_3 -> {
-                        skipWhitespace()
-                        break
+                        if (char == '/') {
+                            state = CommentStates.STATE_7
+                        } else {
+                            break
+                        }
                     }
 
                     CommentStates.STATE_4 -> {
-                        state = if (char == '!') {
-                            CommentStates.STATE_3
+                        if (char == '!') {
+                            state = CommentStates.STATE_5
+                        } else if (char.isLineBreak()) {
+                            state = CommentStates.STATE_9
                         } else {
-                            CommentStates.STATE_5
+                            state = CommentStates.STATE_2
                         }
                     }
 
                     CommentStates.STATE_5 -> {
-                        state = if (char == '!') {
-                            CommentStates.STATE_4
+                        if (char == '!') {
+                            state = CommentStates.STATE_6
                         } else {
-                            CommentStates.STATE_5
+                            state = CommentStates.STATE_5
                         }
                     }
 
                     CommentStates.STATE_6 -> {
-                        state = if (char == '!') {
-                            CommentStates.STATE_4
+                        if (char == '!') {
+                            state = CommentStates.STATE_9
                         } else {
-                            CommentStates.STATE_5
+                            state = CommentStates.STATE_5
                         }
                     }
+
+                    CommentStates.STATE_7 -> {
+                        if (char == '/') {
+                            state = CommentStates.STATE_8
+                        } else {
+                            state = CommentStates.STATE_7
+                        }
+                    }
+
+                    CommentStates.STATE_8 -> {
+                        if (char == '/') {
+                            state = CommentStates.STATE_9
+                        } else {
+                            state = CommentStates.STATE_7
+                        }
+                    }
+
+                    CommentStates.STATE_9 -> {
+                        skipWhitespace()
+                        scanComment()
+                        break
+                    }
                 }
+                countLine()
                 currentPosition++
             }
-        } else {
-            return true
-        }
 
-        return state == CommentStates.STATE_3
+            if (state != CommentStates.STATE_9 && !isEOF()) {
+                currentPosition--
+            }
+            skipWhitespace()
+            if (state != CommentStates.STATE_1 && state != CommentStates.STATE_3 && state != CommentStates.STATE_9 && !isEOF() || state == CommentStates.STATE_5 || state == CommentStates.STATE_6 || state == CommentStates.STATE_7 || state == CommentStates.STATE_8) {
+                exitProcessWithError(
+                    LexicalError(
+                        ErrorType.LexicalError,
+                        "Comentário multilinha não fechado",
+                        commentine
+                    )
+                )
+            }
+        }
     }
 
 
@@ -448,6 +397,11 @@ class Lexer(private val source: String) {
     private fun Char.isNextNegativeDigit(): Boolean {
         return (this == '-' && (currentPosition + 1) < source.length && source[currentPosition + 1].isDigit())
     }
+
+    private fun Char.isComment() = this == '@' || this == '/' || this == '!'
+
+    private fun isEOF(): Boolean = currentPosition >= source.lastIndex
+
 
     companion object {
         private val KEYWORDS = setOf(

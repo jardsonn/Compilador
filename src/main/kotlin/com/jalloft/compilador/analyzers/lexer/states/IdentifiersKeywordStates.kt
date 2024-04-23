@@ -8,5 +8,4 @@ object IdentifiersKeywordStates {
     const val STATE_4 = 4
     const val STATE_5 = 5
     const val STATE_6 = 6
-    const val STATE_7 = 7
 }

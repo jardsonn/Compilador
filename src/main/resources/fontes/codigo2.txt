@@ -7,7 +7,7 @@ principal
 
         -
         if (x < -10) then
-            soAm1a@ := soma1 + x
+            s@oAm1@a := soma1 + x
         else
             repeat
                 x := x + 1

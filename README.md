@@ -12,11 +12,11 @@ Os identificadores são compostos por letras (maiúsculas ou minúsculas), núme
 - soma
 - k12aa3b
 - z_teste
-- u_teste123ab
+- u_teste123a_b
 - u_12tes3
 - s_o_mapesonota
 - somaPeso
-- PESO_TOTAL
+- K_PESO_TOTAL
 - u@rio
 - c@m@inhao
 
@@ -30,6 +30,7 @@ Os identificadores são compostos por letras (maiúsculas ou minúsculas), núme
 - case@uespi_olx
 - numero@@dois
 - teste@
+- numero@dois
 
 ## Palavras Reservadas
 
@@ -111,13 +112,13 @@ O analisador léxico deve identificar números inteiros (positivos ou negativos)
 Os autômatos são essenciais na análise e reconhecimento de padrões dentro do código-fonte, permitindo a identificação de tokens, como identificadores, palavras reservadas, símbolos especiais e números.
 
 ## Identificadores e Palavras Reservadas
-<img src="./automatos/automato_identificadores_palavras_reservadas_2.png" alt="Identificadores e Palavras Reservadas"/>
+<img src="./automatos/automato_identificadores_palavras_reservadas_3.png" alt="Identificadores e Palavras Reservadas"/>
 
 ## Dígitos
 <img src="./automatos/automato_digitos.png" alt="Dígitos"/>
 
 ## Comentários
-<img src="automatos/automato_comentarios.png" alt="Comentárioss"/>
+<img src="automatos/automato_comentarios_2.png" alt="Comentárioss"/>
 
 ## Símbolos Especiais
 <img src="automatos/automato_simbolos_especiais.png" alt="Símbolos Especiais"/>
