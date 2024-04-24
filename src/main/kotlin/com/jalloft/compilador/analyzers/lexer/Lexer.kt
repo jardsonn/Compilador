@@ -33,7 +33,7 @@ class Lexer(private val source: String) {
     }
 
 
-    fun getNextToken(): Token {
+    fun getNextToken(): Token? {
         skipWhitespace()
 
         if (source.trim().isEmpty()) {
@@ -42,15 +42,11 @@ class Lexer(private val source: String) {
 
         scanComment()
 
-        val currentChar = source.getOrNull(currentPosition)
+        val currentChar = source.getOrNull(currentPosition)?: return null
 
-        if (currentChar == null) {
-            exitProcess()
-        }
-
-        val token: Lexical = when {
-            currentChar?.isLetter() == true -> scanIdentifierOrKeyword()
-            currentChar?.isDigit() == true || currentChar?.isNextNegativeDigit() == true -> scanNumber()
+        val lexical: Lexical = when {
+            currentChar.isLetter() -> scanIdentifierOrKeyword()
+            currentChar.isDigit() || currentChar.isNextNegativeDigit() -> scanNumber()
             currentChar in SPECIAL_SYMBOLS -> scanSpecialSymbol()
             else -> {
                 currentPosition++
@@ -61,11 +57,11 @@ class Lexer(private val source: String) {
             }
         }
 
-        if (token is LexicalError){
-            exitProcessWithError(token)
+        if (lexical is LexicalError) {
+            exitProcessWithError(lexical)
         }
 
-        return token as Token
+        return lexical as Token
     }
 
 
@@ -268,7 +264,7 @@ class Lexer(private val source: String) {
     }
 
     private fun scanComment() {
-        var commentine = currentLine
+        val commentine = currentLine
         if (source.getOrNull(currentPosition)?.isComment() == true) {
             var state = CommentStates.STATE_0
             while (currentPosition < source.length) {
@@ -358,11 +354,10 @@ class Lexer(private val source: String) {
                         break
                     }
                 }
-                countLine()
                 currentPosition++
             }
 
-            if (state != CommentStates.STATE_9 && !isEOF()) {
+            if (state == CommentStates.STATE_1 || state == CommentStates.STATE_3 || state != CommentStates.STATE_9 && !isEOF()) {
                 currentPosition--
             }
             skipWhitespace()

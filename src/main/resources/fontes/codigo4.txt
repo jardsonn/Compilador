@@ -10,3 +10,4 @@ Comentario de multilinha
 Fim Comentario
 //
 digito=4,8
+operador -=
