@@ -6,13 +6,11 @@ import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states.Iden
 import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states.SymbolStates
 import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.Lexical
 import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.Token
-import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.Tokens
-import com.jalloft.compilador.com.jalloft.compilador.errors.LexicalError
+import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.TokenClassifications
 import com.jalloft.compilador.com.jalloft.compilador.errors.ErrorType
-import com.jalloft.compilador.com.jalloft.compilador.utils.exitProcess
 import com.jalloft.compilador.com.jalloft.compilador.utils.exitProcessWithError
 
-class Lexer(private val source: String) {
+class Tokenizer(private val source: String) {
 
     private var currentLine = 1
 
@@ -34,12 +32,11 @@ class Lexer(private val source: String) {
 
 
     fun getNextToken(): Token? {
-        skipWhitespace()
-
         if (source.trim().isEmpty()) {
             exitProcessWithError(LexicalError(message = "Arquivo vazio", line = currentLine))
         }
 
+        skipWhitespace()
         scanComment()
 
         val currentChar = source.getOrNull(currentPosition)?: return null
@@ -143,12 +140,12 @@ class Lexer(private val source: String) {
 
 
         return if (state == IdentifiersKeywordStates.STATE_1 || state == IdentifiersKeywordStates.STATE_4 || state == IdentifiersKeywordStates.STATE_6) {
-            Token(Tokens.IDENTIFIER, lexeme, currentLine)
+            Token(TokenClassifications.IDENTIFIER, lexeme, currentLine)
         } else if (state == IdentifiersKeywordStates.STATE_2) {
             if (lexeme in KEYWORDS) {
-                Token(Tokens.KEYWORD, lexeme, currentLine)
+                Token(TokenClassifications.KEYWORD, lexeme, currentLine)
             } else {
-                Token(Tokens.IDENTIFIER, lexeme, currentLine)
+                Token(TokenClassifications.IDENTIFIER, lexeme, currentLine)
             }
         } else {
             LexicalError(message = "Identificador \"$lexeme\" é inválido.", line = currentLine)
@@ -208,8 +205,8 @@ class Lexer(private val source: String) {
 
         val lexeme = source.substring(startIndex, currentPosition)
         return when (state) {
-            DigitStates.STATE_1 -> Token(Tokens.INTEGER_NUMBER, lexeme, currentLine)
-            DigitStates.STATE_4 -> Token(Tokens.DECIMAL_NUMBER, lexeme, currentLine)
+            DigitStates.STATE_1 -> Token(TokenClassifications.INTEGER_NUMBER, lexeme, currentLine)
+            DigitStates.STATE_4 -> Token(TokenClassifications.DECIMAL_NUMBER, lexeme, currentLine)
             else -> LexicalError(message = "Formato de número inválido.", line = currentLine)
         }
     }
@@ -256,7 +253,7 @@ class Lexer(private val source: String) {
         val lexeme = source.substring(startIndex, currentPosition)
         return if (state != SymbolStates.STATE_0) {
 //            TokenBase.Token(Tokens.entries.find { it.symbol == lexeme } ?: Tokens.SPECIAL_SYMBOL, lexeme, currentLine)
-            Token(Tokens.SPECIAL_SYMBOL, lexeme, currentLine)
+            Token(TokenClassifications.SPECIAL_SYMBOL, lexeme, currentLine)
         } else {
             LexicalError(message = "Símbolo $lexeme é desconhecido.", line = currentLine)
         }

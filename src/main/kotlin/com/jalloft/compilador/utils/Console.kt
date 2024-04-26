@@ -1,7 +1,7 @@
 package com.jalloft.compilador.com.jalloft.compilador.utils
 
 import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.Token
-import com.jalloft.compilador.com.jalloft.compilador.errors.LexicalError
+import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.LexicalError
 
 fun printError(error: LexicalError) {
     val bold = "\u001b[1m"
