@@ -90,9 +90,11 @@ Os comentários de uma linha devem começar com ! (ponto de exclamação) e os c
 ### Exemplos de comentários de uma linha:
 - ! Esse é um comentário de uma linha!
 - ! Outro comentário de uma linha.
+- @@ Outro comentário de uma linha.
 
 ### Exemplos de comentários de múltiplas linhas:
 - !! Esse é um comentário de múltiplas linhas! Isso é importante na documentação de todas as linguagens de programação.!!
+- // Outro comentário de múltiplas linhas! //
 
 ## Dígitos
 
@@ -118,7 +120,7 @@ Os autômatos são essenciais na análise e reconhecimento de padrões dentro do
 <img src="./automatos/automato_digitos.png" alt="Dígitos"/>
 
 ## Comentários
-<img src="automatos/automato_comentarios_2.png" alt="Comentárioss"/>
+<img src="automatos/automato_comentarios_3.png" alt="Comentárioss"/>
 
 ## Símbolos Especiais
 <img src="automatos/automato_simbolos_especiais.png" alt="Símbolos Especiais"/>
