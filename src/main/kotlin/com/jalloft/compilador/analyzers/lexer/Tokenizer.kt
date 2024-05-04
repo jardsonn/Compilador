@@ -25,13 +25,21 @@ class Tokenizer(private val source: String) {
             field = value
         }
 
-    fun hasNext(): Boolean {
-        val hasNext = hasNextPosition <= source.length
-        if (hasNextPosition == source.length) {
-            hasNextPosition++
-        }
-        return hasNext
+    fun restore() {
+        currentPosition = 0
     }
+
+    fun hasNext(): Boolean {
+        return currentPosition <= source.lastIndex
+    }
+
+//    fun hasNext(): Boolean {
+//        val hasNext = hasNextPosition <= source.length
+//        if (hasNextPosition == source.length) {
+//            hasNextPosition++
+//        }
+//        return hasNext
+//    }
 
 
     fun getNextToken(): Token? {
