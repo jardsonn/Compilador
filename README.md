@@ -110,7 +110,7 @@ O analisador léxico deve identificar números inteiros (positivos ou negativos)
 - -123,4
 - -12,55
 
-## Autmatos
+## Autômatos
 Os autômatos são essenciais na análise e reconhecimento de padrões dentro do código-fonte, permitindo a identificação de tokens, como identificadores, palavras reservadas, símbolos especiais e números.
 
 ## Identificadores e Palavras Reservadas
