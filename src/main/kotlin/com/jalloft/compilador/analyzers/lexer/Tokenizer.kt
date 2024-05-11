@@ -262,124 +262,127 @@ class Tokenizer(private val source: String) {
 
     private fun scanComment() {
         val commentLine = currentLine
-        if (source.getOrNull(currentPosition).isComment()) {
-            var state = CommentStates.STATE_0
-            while (currentPosition < source.length) {
-                var char = source[currentPosition]
-                when (state) {
-                    CommentStates.STATE_0 -> {
-                        if (char == '@') {
-                            state = CommentStates.STATE_1
-                        } else if (char == '/') {
-                            state = CommentStates.STATE_3
-                        } else if (char == '!') {
-                            state = CommentStates.STATE_4
-                        } else {
+        var state = CommentStates.STATE_0
+        while (currentPosition < source.length) {
+            val char = source[currentPosition]
+            when (state) {
+                CommentStates.STATE_0 -> {
+                    if (char == '@') {
+                        state = CommentStates.STATE_1
+                        if (source[currentPosition + 1] != '@') {
                             break
                         }
-                    }
-
-                    CommentStates.STATE_1 -> {
-                        if (char == '@') {
-                            state = CommentStates.STATE_2
-                        } else {
+                    } else if (char == '/') {
+                        state = CommentStates.STATE_3
+                        if (source[currentPosition + 1] != '/') {
                             break
                         }
-                    }
-
-                    CommentStates.STATE_2 -> {
-                        if (char.isLineBreak()) {
-                            state = CommentStates.STATE_9
-                        } else {
-                            state = CommentStates.STATE_2
-                        }
-                    }
-
-                    CommentStates.STATE_3 -> {
-                        if (char == '/') {
-                            state = CommentStates.STATE_7
-                        } else {
-                            break
-                        }
-                    }
-
-                    CommentStates.STATE_4 -> {
-                        if (char == '!') {
-                            state = CommentStates.STATE_5
-                        } else if (char.isLineBreak()) {
-                            state = CommentStates.STATE_9
-                        } else {
-                            state = CommentStates.STATE_2
-                        }
-                    }
-
-                    CommentStates.STATE_5 -> {
-                        if (char == '!') {
-                            state = CommentStates.STATE_6
-                        } else {
-                            state = CommentStates.STATE_5
-                        }
-                    }
-
-                    CommentStates.STATE_6 -> {
-                        if (char == '!') {
-                            state = CommentStates.STATE_9
-                        } else {
-                            state = CommentStates.STATE_5
-                        }
-                    }
-
-                    CommentStates.STATE_7 -> {
-                        if (char == '/') {
-                            state = CommentStates.STATE_8
-                        } else {
-                            state = CommentStates.STATE_7
-                        }
-                    }
-
-                    CommentStates.STATE_8 -> {
-                        if (char == '/') {
-                            state = CommentStates.STATE_9
-                        } else {
-                            state = CommentStates.STATE_7
-                        }
-                    }
-
-                    CommentStates.STATE_9 -> {
-                        skipWhitespace()
-                        val currentChar = source.getOrNull(currentPosition)
-                        if (currentChar == '!') {
-                            state = CommentStates.STATE_4
-                        } else if (currentChar == '@') {
-                            state = CommentStates.STATE_1
-                        } else if (currentChar == '/') {
-                            state = CommentStates.STATE_3
-                        } else {
-                            break
-                        }
+                    } else if (char == '!') {
+                        state = CommentStates.STATE_4
+                    } else {
+                        break
                     }
                 }
-                nextChar()
-            }
 
-            if (state == CommentStates.STATE_1 || state == CommentStates.STATE_3
-                || (state != CommentStates.STATE_9 && !isEOF())
-            ) {
-                // Trata-se de um símbolo especial, portanto, é necessário
-                // retroceder um caractere para que seja reconhecido pelo
-                // autômato de símbolos especiais.
-                previousChar()
-            }
+                CommentStates.STATE_1 -> {
+                    if (char == '@') {
+                        state = CommentStates.STATE_2
+                    } else {
+                        break
+                    }
+                }
 
-            if (state != CommentStates.STATE_1 && state != CommentStates.STATE_3 && state != CommentStates.STATE_9 && !isEOF() || state == CommentStates.STATE_5 || state == CommentStates.STATE_6 || state == CommentStates.STATE_7 || state == CommentStates.STATE_8) {
-                exitProcessWithError(
-                    LexicalError(
-                        ErrorType.LexicalError,
-                        "Comentário multilinha não fechado",
-                        commentLine
-                    )
+                CommentStates.STATE_2 -> {
+                    if (char.isLineBreak()) {
+                        state = CommentStates.STATE_9
+                    } else {
+                        state = CommentStates.STATE_2
+                    }
+                }
+
+                CommentStates.STATE_3 -> {
+                    if (char == '/') {
+                        state = CommentStates.STATE_7
+                    } else {
+                        break
+                    }
+                }
+
+                CommentStates.STATE_4 -> {
+                    if (char == '!') {
+                        state = CommentStates.STATE_5
+                    } else if (char.isLineBreak()) {
+                        state = CommentStates.STATE_9
+                    } else {
+                        state = CommentStates.STATE_2
+                    }
+                }
+
+                CommentStates.STATE_5 -> {
+                    if (char == '!') {
+                        state = CommentStates.STATE_6
+                    } else {
+                        state = CommentStates.STATE_5
+                    }
+                }
+
+                CommentStates.STATE_6 -> {
+                    if (char == '!') {
+                        state = CommentStates.STATE_9
+                    } else {
+                        state = CommentStates.STATE_5
+                    }
+                }
+
+                CommentStates.STATE_7 -> {
+                    if (char == '/') {
+                        state = CommentStates.STATE_8
+                    } else {
+                        state = CommentStates.STATE_7
+                    }
+                }
+
+                CommentStates.STATE_8 -> {
+                    if (char == '/') {
+                        state = CommentStates.STATE_9
+                    } else {
+                        state = CommentStates.STATE_7
+                    }
+                }
+
+                CommentStates.STATE_9 -> {
+                    skipWhitespace()
+                    val currentChar = source.getOrNull(currentPosition)
+                    if (currentChar == '!') {
+                        state = CommentStates.STATE_4
+                    } else if (currentChar == '@') {
+                        state = CommentStates.STATE_1
+                        if (source[currentPosition + 1] != '@') {
+                            break
+                        }
+                    } else if (currentChar == '/') {
+                        state = CommentStates.STATE_3
+                        if (source[currentPosition + 1] != '/') {
+                            break
+                        }
+                    } else {
+                        break
+                    }
+                }
+            }
+            nextChar()
+        }
+
+        if (state == CommentStates.STATE_0 || state == CommentStates.STATE_1 || state == CommentStates.STATE_3) {
+            return
+        } else if ((state != CommentStates.STATE_9 && !isEOF())) {
+            exitProcessWithError(
+                LexicalError(
+                    ErrorType.LexicalError,
+                    "Comentário multilinha não fechado",
+                    commentLine
                 )
-            }
+            )
         }
     }
 
@@ -401,18 +404,11 @@ class Tokenizer(private val source: String) {
         currentPosition++
     }
 
-    private fun previousChar() {
-        currentPosition--
-    }
-
-
     private fun Char.isLineBreak() = this == '\n' || this == '\r'
 
     private fun Char.isNextNegativeDigit(): Boolean {
         return (this == '-' && (currentPosition + 1) < source.length && source[currentPosition + 1].isDigit())
     }
-
-    private fun Char?.isComment() = this == '@' || this == '/' || this == '!'
 
     private fun isEOF(): Boolean = currentPosition >= source.lastIndex
 
