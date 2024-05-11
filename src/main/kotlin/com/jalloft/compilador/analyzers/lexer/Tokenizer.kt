@@ -269,12 +269,12 @@ class Tokenizer(private val source: String) {
                 CommentStates.STATE_0 -> {
                     if (char == '@') {
                         state = CommentStates.STATE_1
-                        if (source[currentPosition + 1] != '@') {
+                        if (source.getOrNull(currentPosition + 1) != '@') {
                             break
                         }
                     } else if (char == '/') {
                         state = CommentStates.STATE_3
-                        if (source[currentPosition + 1] != '/') {
+                        if (source.getOrNull(currentPosition + 1) != '/') {
                             break
                         }
                     } else if (char == '!') {
@@ -357,12 +357,12 @@ class Tokenizer(private val source: String) {
                         state = CommentStates.STATE_4
                     } else if (currentChar == '@') {
                         state = CommentStates.STATE_1
-                        if (source[currentPosition + 1] != '@') {
+                        if (source.getOrNull(currentPosition + 1) != '@') {
                             break
                         }
                     } else if (currentChar == '/') {
                         state = CommentStates.STATE_3
-                        if (source[currentPosition + 1] != '/') {
+                        if (source.getOrNull(currentPosition + 1) != '/') {
                             break
                         }
                     } else {
