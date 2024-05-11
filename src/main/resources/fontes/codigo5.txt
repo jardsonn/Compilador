@@ -1,0 +1,13 @@
+principal
+
+soma
+soma1 s_ma3
+s@m@4 -= 4
+s_maa_a
+
+! Calcumando média
+m_media = (soma + soma1) / 2,5
+
+!! A linha de cima calcula a media
+das somas
+!!

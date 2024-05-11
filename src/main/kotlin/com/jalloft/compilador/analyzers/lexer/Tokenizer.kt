@@ -17,8 +17,6 @@ class Tokenizer(private val source: String) {
 
     private var hasNextPosition = 0
 
-    private val currentChar: Char get() = source[currentPosition]
-
     private var currentPosition = 0
         set(value) {
             hasNextPosition = value
@@ -50,7 +48,7 @@ class Tokenizer(private val source: String) {
             char in SPECIAL_SYMBOLS -> scanSpecialSymbol()
             else -> {
                 LexicalError(
-                    message = " Símbolo \"$currentChar\" é desconhecido.",
+                    message = " Símbolo \"$char\" é desconhecido.",
                     line = currentLine
                 )
             }
@@ -69,9 +67,10 @@ class Tokenizer(private val source: String) {
         var state = IdentifiersKeywordStates.STATE_0
 
         while (currentPosition < source.length) {
+            val char = source[currentPosition]
             when (state) {
                 IdentifiersKeywordStates.STATE_0 -> {
-                    if (currentChar.isLetter()) {
+                    if (char.isLetter()) {
                         state = IdentifiersKeywordStates.STATE_1
                     } else {
                         break
@@ -79,11 +78,11 @@ class Tokenizer(private val source: String) {
                 }
 
                 IdentifiersKeywordStates.STATE_1 -> {
-                    if (currentChar.isLetterOrDigit()) {
+                    if (char.isLetterOrDigit()) {
                         state = IdentifiersKeywordStates.STATE_2
-                    } else if (currentChar == '_') {
+                    } else if (char == '_') {
                         state = IdentifiersKeywordStates.STATE_3
-                    } else if (currentChar == '@') {
+                    } else if (char == '@') {
                         state = IdentifiersKeywordStates.STATE_5
                     } else {
                         break
@@ -91,7 +90,7 @@ class Tokenizer(private val source: String) {
                 }
 
                 IdentifiersKeywordStates.STATE_2 -> {
-                    if (currentChar.isLetterOrDigit()) {
+                    if (char.isLetterOrDigit()) {
                         state = IdentifiersKeywordStates.STATE_2
                     } else {
                         break
@@ -99,7 +98,7 @@ class Tokenizer(private val source: String) {
                 }
 
                 IdentifiersKeywordStates.STATE_3 -> {
-                    if (currentChar.isLetterOrDigit()) {
+                    if (char.isLetterOrDigit()) {
                         state = IdentifiersKeywordStates.STATE_4
                     } else {
                         break
@@ -107,9 +106,9 @@ class Tokenizer(private val source: String) {
                 }
 
                 IdentifiersKeywordStates.STATE_4 -> {
-                    if (currentChar.isLetterOrDigit()) {
+                    if (char.isLetterOrDigit()) {
                         state = IdentifiersKeywordStates.STATE_4
-                    } else if (currentChar == '_') {
+                    } else if (char == '_') {
                         state = IdentifiersKeywordStates.STATE_3
                     } else {
                         break
@@ -117,7 +116,7 @@ class Tokenizer(private val source: String) {
                 }
 
                 IdentifiersKeywordStates.STATE_5 -> {
-                    if (currentChar.isLetterOrDigit()) {
+                    if (char.isLetterOrDigit()) {
                         state = IdentifiersKeywordStates.STATE_6
                     } else {
                         break
@@ -125,9 +124,9 @@ class Tokenizer(private val source: String) {
                 }
 
                 IdentifiersKeywordStates.STATE_6 -> {
-                    if (currentChar.isLetterOrDigit()) {
+                    if (char.isLetterOrDigit()) {
                         state = IdentifiersKeywordStates.STATE_6
-                    } else if (currentChar == '@') {
+                    } else if (char == '@') {
                         state = IdentifiersKeywordStates.STATE_5
                     } else {
                         break
@@ -159,25 +158,26 @@ class Tokenizer(private val source: String) {
         var state = DigitStates.STATE_0
 
         while (currentPosition < source.length) {
+            val char = source[currentPosition]
             when (state) {
                 DigitStates.STATE_0 -> {
                     state = when {
-                        currentChar.isDigit() -> DigitStates.STATE_1
-                        currentChar == '-' -> DigitStates.STATE_2
+                        char.isDigit() -> DigitStates.STATE_1
+                        char == '-' -> DigitStates.STATE_2
                         else -> break
                     }
                 }
 
                 DigitStates.STATE_1 -> {
                     state = when {
-                        currentChar.isDigit() -> DigitStates.STATE_1
-                        currentChar == ',' -> DigitStates.STATE_3
+                        char.isDigit() -> DigitStates.STATE_1
+                        char == ',' -> DigitStates.STATE_3
                         else -> break
                     }
                 }
 
                 DigitStates.STATE_2 -> {
-                    state = if (currentChar.isDigit()) {
+                    state = if (char.isDigit()) {
                         DigitStates.STATE_1
                     } else {
                         break
@@ -185,7 +185,7 @@ class Tokenizer(private val source: String) {
                 }
 
                 DigitStates.STATE_3 -> {
-                    state = if (currentChar.isDigit()) {
+                    state = if (char.isDigit()) {
                         DigitStates.STATE_4
                     } else {
                         break
@@ -193,7 +193,7 @@ class Tokenizer(private val source: String) {
                 }
 
                 DigitStates.STATE_4 -> {
-                    state = if (currentChar.isDigit()) {
+                    state = if (char.isDigit()) {
                         DigitStates.STATE_4
                     } else {
                         break
@@ -216,13 +216,14 @@ class Tokenizer(private val source: String) {
         val startIndex = currentPosition
         var state = SymbolStates.STATE_0
         while (currentPosition < source.length) {
+            val char = source[currentPosition]
             when (state) {
                 SymbolStates.STATE_0 -> {
-                    state = if (currentChar == '>' || currentChar == '-' || currentChar == ':') {
+                    state = if (char == '>' || char == '-' || char == ':') {
                         SymbolStates.STATE_1
-                    } else if (currentChar == '<') {
+                    } else if (char == '<') {
                         SymbolStates.STATE_2
-                    } else if (currentChar in SPECIAL_SYMBOLS) {
+                    } else if (char in SPECIAL_SYMBOLS) {
                         SymbolStates.STATE_3
                     } else {
                         break
@@ -230,7 +231,7 @@ class Tokenizer(private val source: String) {
                 }
 
                 SymbolStates.STATE_1 -> {
-                    if (currentChar == '=') {
+                    if (char == '=') {
                         state = 3
                     } else {
                         break
@@ -238,7 +239,7 @@ class Tokenizer(private val source: String) {
                 }
 
                 SymbolStates.STATE_2 -> {
-                    if (currentChar == '=' || currentChar == '>') {
+                    if (char == '=' || char == '>') {
                         state = SymbolStates.STATE_3
                     } else {
                         break
@@ -260,18 +261,18 @@ class Tokenizer(private val source: String) {
     }
 
     private fun scanComment() {
-        val commentine = currentLine
+        val commentLine = currentLine
         if (source.getOrNull(currentPosition).isComment()) {
             var state = CommentStates.STATE_0
-
             while (currentPosition < source.length) {
+                var char = source[currentPosition]
                 when (state) {
                     CommentStates.STATE_0 -> {
-                        if (currentChar == '@') {
+                        if (char == '@') {
                             state = CommentStates.STATE_1
-                        } else if (currentChar == '/') {
+                        } else if (char == '/') {
                             state = CommentStates.STATE_3
-                        } else if (currentChar == '!') {
+                        } else if (char == '!') {
                             state = CommentStates.STATE_4
                         } else {
                             break
@@ -279,7 +280,7 @@ class Tokenizer(private val source: String) {
                     }
 
                     CommentStates.STATE_1 -> {
-                        if (currentChar == '@') {
+                        if (char == '@') {
                             state = CommentStates.STATE_2
                         } else {
                             break
@@ -287,7 +288,7 @@ class Tokenizer(private val source: String) {
                     }
 
                     CommentStates.STATE_2 -> {
-                        if (currentChar.isLineBreak()) {
+                        if (char.isLineBreak()) {
                             state = CommentStates.STATE_9
                         } else {
                             state = CommentStates.STATE_2
@@ -295,7 +296,7 @@ class Tokenizer(private val source: String) {
                     }
 
                     CommentStates.STATE_3 -> {
-                        if (currentChar == '/') {
+                        if (char == '/') {
                             state = CommentStates.STATE_7
                         } else {
                             break
@@ -303,9 +304,9 @@ class Tokenizer(private val source: String) {
                     }
 
                     CommentStates.STATE_4 -> {
-                        if (currentChar == '!') {
+                        if (char == '!') {
                             state = CommentStates.STATE_5
-                        } else if (currentChar.isLineBreak()) {
+                        } else if (char.isLineBreak()) {
                             state = CommentStates.STATE_9
                         } else {
                             state = CommentStates.STATE_2
@@ -313,7 +314,7 @@ class Tokenizer(private val source: String) {
                     }
 
                     CommentStates.STATE_5 -> {
-                        if (currentChar == '!') {
+                        if (char == '!') {
                             state = CommentStates.STATE_6
                         } else {
                             state = CommentStates.STATE_5
@@ -321,7 +322,7 @@ class Tokenizer(private val source: String) {
                     }
 
                     CommentStates.STATE_6 -> {
-                        if (currentChar == '!') {
+                        if (char == '!') {
                             state = CommentStates.STATE_9
                         } else {
                             state = CommentStates.STATE_5
@@ -329,7 +330,7 @@ class Tokenizer(private val source: String) {
                     }
 
                     CommentStates.STATE_7 -> {
-                        if (currentChar == '/') {
+                        if (char == '/') {
                             state = CommentStates.STATE_8
                         } else {
                             state = CommentStates.STATE_7
@@ -337,7 +338,7 @@ class Tokenizer(private val source: String) {
                     }
 
                     CommentStates.STATE_8 -> {
-                        if (currentChar == '/') {
+                        if (char == '/') {
                             state = CommentStates.STATE_9
                         } else {
                             state = CommentStates.STATE_7
@@ -346,6 +347,7 @@ class Tokenizer(private val source: String) {
 
                     CommentStates.STATE_9 -> {
                         skipWhitespace()
+                        val currentChar = source.getOrNull(currentPosition)
                         if (currentChar == '!') {
                             state = CommentStates.STATE_4
                         } else if (currentChar == '@') {
@@ -374,7 +376,7 @@ class Tokenizer(private val source: String) {
                     LexicalError(
                         ErrorType.LexicalError,
                         "Comentário multilinha não fechado",
-                        commentine
+                        commentLine
                     )
                 )
             }
