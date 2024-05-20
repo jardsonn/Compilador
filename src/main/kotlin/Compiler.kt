@@ -1,19 +1,18 @@
 package com.jalloft.compilador
 
-import com.google.common.io.Resources
-import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.Tokenizer
-import com.jalloft.compilador.com.jalloft.compilador.utils.printToken
+import com.jalloft.compilador.analyzers.lexer.Tokenizer
+import com.jalloft.compilador.analyzers.parser.Parser
+import com.jalloft.compilador.utils.printToken
 
 fun main() {
-    val sourcePath = "fontes/codigo6.txt"
-    val source = Resources.getResource(sourcePath).readText()
-    val lexer = Tokenizer(source)
-
-    var token = lexer.getNextToken()
-
-    while (token != null) {
-        printToken(token)
-        token = lexer.getNextToken()
-    }
+    val sourcePath = "fontes/codigo_sintatico.txt"
+    val parser = Parser(sourcePath)
+    parser.parse()
+//    val tokenizer = Tokenizer(sourcePath)
+//    var token = tokenizer.getNextToken()
+//    while (token != null){
+//        printToken(token)
+//        token = tokenizer.getNextToken()
+//    }
 }
 

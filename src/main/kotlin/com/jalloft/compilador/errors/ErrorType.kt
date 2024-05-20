@@ -1,4 +1,4 @@
-package com.jalloft.compilador.com.jalloft.compilador.errors
+package com.jalloft.compilador.errors
 
 enum class ErrorType {
     LexicalError,

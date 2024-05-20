@@ -1,4 +1,4 @@
-package com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states
+package com.jalloft.compilador.analyzers.lexer.states
 
 object CommentStates {
     const val STATE_0 = 0

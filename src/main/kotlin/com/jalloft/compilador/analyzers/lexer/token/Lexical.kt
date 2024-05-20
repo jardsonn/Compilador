@@ -1,5 +1,3 @@
-package com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token
+package com.jalloft.compilador.analyzers.lexer.token
 
-interface Lexical {
-    fun line(): Int
-}
+interface Lexical

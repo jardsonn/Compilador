@@ -1,17 +1,18 @@
-package com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer
+package com.jalloft.compilador.analyzers.lexer
 
-import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states.CommentStates
-import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states.DigitStates
-import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states.IdentifiersKeywordStates
-import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.states.SymbolStates
-import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.Lexical
-import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.Token
-import com.jalloft.compilador.com.jalloft.compilador.analyzers.lexer.token.TokenClassifications
-import com.jalloft.compilador.com.jalloft.compilador.errors.ErrorType
-import com.jalloft.compilador.com.jalloft.compilador.utils.exitProcessWithError
-import kotlin.properties.Delegates
+import com.google.common.io.Resources
+import com.jalloft.compilador.analyzers.lexer.states.CommentStates
+import com.jalloft.compilador.analyzers.lexer.states.DigitStates
+import com.jalloft.compilador.analyzers.lexer.states.IdentifiersKeywordStates
+import com.jalloft.compilador.analyzers.lexer.states.SymbolStates
+import com.jalloft.compilador.analyzers.lexer.token.Lexical
+import com.jalloft.compilador.analyzers.lexer.token.Token
+import com.jalloft.compilador.analyzers.lexer.token.TokenType
+import com.jalloft.compilador.analyzers.lexer.token.Tokens
+import com.jalloft.compilador.errors.ErrorType
+import com.jalloft.compilador.utils.exitProcessWithError
 
-class Tokenizer(private val source: String) {
+class Tokenizer(private val sourcePath: String) {
 
     private var currentLine = 1
 
@@ -22,6 +23,8 @@ class Tokenizer(private val source: String) {
             hasNextPosition = value
             field = value
         }
+
+    private val source by lazy { Resources.getResource(sourcePath).readText() }
 
     fun hasNext(): Boolean {
         val hasNext = hasNextPosition <= source.length
@@ -140,12 +143,12 @@ class Tokenizer(private val source: String) {
 
 
         return if (state == IdentifiersKeywordStates.STATE_1 || state == IdentifiersKeywordStates.STATE_4 || state == IdentifiersKeywordStates.STATE_6) {
-            Token(TokenClassifications.IDENTIFIER, lexeme, currentLine)
+            Token(Tokens.IDENTIFIER, lexeme, currentLine)
         } else if (state == IdentifiersKeywordStates.STATE_2) {
             if (lexeme in KEYWORDS) {
-                Token(TokenClassifications.KEYWORD, lexeme, currentLine)
+                Token(Tokens.entries.find { it.name.lowercase() == lexeme } ?: Tokens.IDENTIFIER, lexeme, currentLine)
             } else {
-                Token(TokenClassifications.IDENTIFIER, lexeme, currentLine)
+                Token(Tokens.IDENTIFIER, lexeme, currentLine)
             }
         } else {
             LexicalError(message = "Identificador \"$lexeme\" é inválido.", line = currentLine)
@@ -171,7 +174,7 @@ class Tokenizer(private val source: String) {
                 DigitStates.STATE_1 -> {
                     state = when {
                         char.isDigit() -> DigitStates.STATE_1
-                        char == ',' -> DigitStates.STATE_3
+                        char == '.' -> DigitStates.STATE_3
                         else -> break
                     }
                 }
@@ -204,10 +207,10 @@ class Tokenizer(private val source: String) {
         }
 
         val lexeme = source.substring(startIndex, currentPosition)
-        return when (state) {
-            DigitStates.STATE_1 -> Token(TokenClassifications.INTEGER_NUMBER, lexeme, currentLine)
-            DigitStates.STATE_4 -> Token(TokenClassifications.DECIMAL_NUMBER, lexeme, currentLine)
-            else -> LexicalError(message = "Formato de número inválido.", line = currentLine)
+        return if (state == DigitStates.STATE_1 || state == DigitStates.STATE_4) {
+            Token(Tokens.NUMBER, lexeme, currentLine)
+        } else {
+            LexicalError(message = "Formato de número inválido.", line = currentLine)
         }
     }
 
@@ -252,8 +255,12 @@ class Tokenizer(private val source: String) {
         }
         val lexeme = source.substring(startIndex, currentPosition)
         return if (state != SymbolStates.STATE_0) {
-//            TokenBase.Token(Tokens.entries.find { it.symbol == lexeme } ?: Tokens.SPECIAL_SYMBOL, lexeme, currentLine)
-            Token(TokenClassifications.SPECIAL_SYMBOL, lexeme, currentLine)
+            val symbol = Tokens.entries.find { it.content == lexeme }
+            if (symbol != null){
+                Token(symbol, lexeme, currentLine)
+            }else{
+                LexicalError(message = "Símbolo $lexeme é desconhecido.", line = currentLine)
+            }
         } else {
             LexicalError(message = "Símbolo $lexeme é desconhecido.", line = currentLine)
         }
@@ -414,26 +421,7 @@ class Tokenizer(private val source: String) {
 
 
     companion object {
-        private val KEYWORDS = setOf(
-            "principal",
-            "if",
-            "then",
-            "else",
-            "while",
-            "do",
-            "until",
-            "repeat",
-            "int",
-            "double",
-            "char",
-            "case",
-            "switch",
-            "end",
-            "procedure",
-            "function",
-            "for",
-            "begin"
-        )
+        private val KEYWORDS = Tokens.entries.filter { it.type == TokenType.RESERVED_WORD }.map { it.content }.toSet()
         private val SPECIAL_SYMBOLS = setOf(
             ';', ',', '.', '+', '*', '(', ')', '=', '{', '}', '/', '@', '>', '<', ':', '-',
         )
