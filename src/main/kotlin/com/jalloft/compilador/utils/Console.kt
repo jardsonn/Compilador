@@ -26,6 +26,12 @@ fun printError(errorMsg: String){
     println("${bold}${redColor}Syntax Error:${reset} ${redColor}$errorMsg${reset}")
 }
 
+fun printSuccess(){
+    val bold = "\u001b[1m"
+    val greenColor = "\u001b[32m"
+    val reset = "\u001b[0m"
+    println("${bold}${greenColor}Successfully:${reset} ${greenColor}Sintático foi executado com sucesso!${reset}")
+}
 
 
 fun printToken(token: Token) {

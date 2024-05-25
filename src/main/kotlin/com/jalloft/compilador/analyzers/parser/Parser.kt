@@ -4,6 +4,7 @@ import com.jalloft.compilador.analyzers.lexer.Tokenizer
 import com.jalloft.compilador.analyzers.lexer.token.Token
 import com.jalloft.compilador.analyzers.lexer.token.Tokens
 import com.jalloft.compilador.utils.exitProcessWithError
+import com.jalloft.compilador.utils.printSuccess
 
 class Parser(private val sourcePath: String) {
 
@@ -18,11 +19,11 @@ class Parser(private val sourcePath: String) {
     fun parse() {
         advanceToNextToken()
         parseProgram()
+        printSuccess()
     }
 
     private fun comsumeCurrentTokenAndAdvance(tokens: Tokens) {
         if (currentToken?.token != tokens) {
-            println("$currentToken   $tokens")
             exitProcessWithError(tokens)
         }
         advanceToNextToken()
@@ -39,12 +40,15 @@ class Parser(private val sourcePath: String) {
         if (currentToken?.token == Tokens.TYPE) {
             typeDefinition()
         }
+
         if (currentToken?.token == Tokens.VAR) {
             variablesDefinition()
         }
+
         while (currentToken?.token == Tokens.PROCEDURE || currentToken?.token == Tokens.FUNCTION) {
             subRoutinesDefinition()
         }
+
         compoundCommand()
     }
 
@@ -54,13 +58,13 @@ class Parser(private val sourcePath: String) {
         comsumeCurrentTokenAndAdvance(Tokens.IDENTIFIER)
         comsumeCurrentTokenAndAdvance(Tokens.EQUAL)
         types()
-        //        enquanto token == ";" faca
-        while (currentToken?.token == Tokens.SEMICOLON) {
+        comsumeCurrentTokenAndAdvance(Tokens.SEMICOLON)
+        while (currentToken?.token == Tokens.IDENTIFIER) {
             advanceToNextToken()
-            comsumeCurrentTokenAndAdvance(Tokens.IDENTIFIER)
             comsumeCurrentTokenAndAdvance(Tokens.EQUAL)
             types()
         }
+        comsumeCurrentTokenAndAdvance(Tokens.SEMICOLON)
     }
 
     private fun variablesDefinition() {
@@ -69,20 +73,23 @@ class Parser(private val sourcePath: String) {
 //        se token ≠ ":" entao
         comsumeCurrentTokenAndAdvance(Tokens.COLON)
         types()
-//        enquanto token == ";" faca
-        while (currentToken?.token == Tokens.SEMICOLON) {
-            advanceToNextToken()
+        comsumeCurrentTokenAndAdvance(Tokens.SEMICOLON)
+//        enquanto token == "id" faca
+        while (currentToken?.token == Tokens.IDENTIFIER) {
+//            advanceToNextToken()
             listIdentifiers()
 //            e token ≠ ":" entao
             comsumeCurrentTokenAndAdvance(Tokens.COLON)
             types()
         }
+        advanceToNextToken()
     }
 
     private fun listIdentifiers() {
         comsumeCurrentTokenAndAdvance(Tokens.IDENTIFIER)
         // enquanto token == "," faca
         while (currentToken?.token == Tokens.COMMA) {
+            advanceToNextToken()
             comsumeCurrentTokenAndAdvance(Tokens.IDENTIFIER)
         }
     }
@@ -93,7 +100,7 @@ class Parser(private val sourcePath: String) {
         } else if (currentToken?.token == Tokens.FUNCTION) {
             functionDefinition()
         } else {
-            exitProcessWithError("'procedure' ou 'function' era esperado")
+            exitProcessWithError("'procedure' ou 'function' era esperado na linha ${currentToken?.line}")
         }
     }
 
@@ -155,21 +162,24 @@ class Parser(private val sourcePath: String) {
     private fun unlabeledCommand() {
         if (currentToken?.token == Tokens.IDENTIFIER) {
             advanceToNextToken()
-
             // se token == ":=" entao
             if (currentToken?.token == Tokens.ASSIGN) {
                 assignment() // atribuicao
             } else if (currentToken?.token == Tokens.LPAREN) {
                 procedureCall() // chamada de procedimento
             } else {
-                exitProcessWithError("Esperado ':=' ou '(' após o identificador, mas encontrado '${currentToken?.token?.name?.uppercase()}'.")
+                exitProcessWithError(
+                    "Esperado ':=' ou '(' após o identificador, porém foi encontrado '${currentToken?.token?.name?.uppercase()}' na linha ${
+                        currentToken?.line?.minus(1)
+                    }."
+                )
             }
         } else if (currentToken?.token == Tokens.IF) {
             conditionalCommand() // comando condicional
         } else if (currentToken?.token == Tokens.WHILE) {
             repetitiveCommand() // comando repetitivo
         } else {
-            exitProcessWithError("Comando inválido")
+//            exitProcessWithError("Comando inválido")
         }
     }
 
@@ -185,7 +195,7 @@ class Parser(private val sourcePath: String) {
         expression()
         comsumeCurrentTokenAndAdvance(Tokens.THEN)
         unlabeledCommand()
-        if (currentToken?.token == Tokens.ELSE){
+        if (currentToken?.token == Tokens.ELSE) {
             advanceToNextToken()
             unlabeledCommand()
         }
@@ -222,7 +232,7 @@ class Parser(private val sourcePath: String) {
         }
         term()
 //        enquanto token == "+" ou token == "-" ou token == "or" faca
-        while (currentToken?.token == Tokens.PLUS || currentToken?.token == Tokens.DASH || currentToken?.token == Tokens.OR){
+        while (currentToken?.token == Tokens.PLUS || currentToken?.token == Tokens.DASH || currentToken?.token == Tokens.OR) {
             advanceToNextToken()
             term()
         }

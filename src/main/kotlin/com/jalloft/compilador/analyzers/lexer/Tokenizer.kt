@@ -61,6 +61,7 @@ class Tokenizer(private val sourcePath: String) {
             exitProcessWithError(lexical)
         }
 
+        println(lexical)
         return lexical as Token
     }
 
@@ -396,18 +397,14 @@ class Tokenizer(private val sourcePath: String) {
 
     private fun skipWhitespace() {
         while (currentPosition < source.length && source[currentPosition].isWhitespace()) {
-            countLine()
             nextChar()
         }
     }
 
-    private fun countLine() {
-        if (source[currentPosition].isLineBreak()) {
+    private fun nextChar() {
+        if (source[currentPosition] == '\n' || (source[currentPosition] == '\r' && source.getOrNull(currentPosition + 1) != '\n')) {
             currentLine++
         }
-    }
-
-    private fun nextChar() {
         currentPosition++
     }
 
@@ -427,3 +424,4 @@ class Tokenizer(private val sourcePath: String) {
         )
     }
 }
+

@@ -1,0 +1,30 @@
+principal Principal;
+type
+  Inteiro = int;
+  Real = double;
+var
+  x, y: Inteiro;
+  dx, dy: Real;
+
+function somar(numero1, numero2: Inteiro): Inteiro;
+begin
+  somar := numero1 + numero2;
+end
+
+procedure verificar(soma: Real);
+begin
+  if soma >= 10 then
+    x := 10
+  else
+    x := 0;
+end
+
+begin
+  x := 5;
+  y := 7;
+  dx := 2.5;
+  dy := 3.5;
+
+  x := somar(x, y);
+  verificar(x + y);
+end
