@@ -177,7 +177,8 @@ class Parser(private val sourcePath: String) {
             }
         } else if (currentToken?.token == Tokens.IF) {
             conditionalCommand() // comando condicional
-        } else if (currentToken?.token == Tokens.WHILE) {
+        }
+        else if (currentToken?.token == Tokens.WHILE) {
             repetitiveCommand() // comando repetitivo
         }
     }

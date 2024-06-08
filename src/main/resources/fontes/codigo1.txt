@@ -1,14 +1,4 @@
-sggd!ttrr4
-4gg
-!!Ola
-kkk
-
-f!!
-sggd@@ttrr4
-!!O!la!!
-
-//Comeee/8fdd//
-
-!!Ola!4777!!
-
-/Carambola
+principal Principal;
+begin
+   x := 10
+end
