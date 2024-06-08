@@ -30,7 +30,7 @@ fun printSuccess(){
     val bold = "\u001b[1m"
     val greenColor = "\u001b[32m"
     val reset = "\u001b[0m"
-    println("${bold}${greenColor}Successfully:${reset} ${greenColor}Sintático foi executado com sucesso!${reset}")
+    println("${bold}${greenColor}SUCCESSFULLY:${reset} ${greenColor}Sintático foi executado com sucesso!${reset}")
 }
 
 

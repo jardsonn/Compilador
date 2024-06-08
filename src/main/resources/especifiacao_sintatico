@@ -1,0 +1,51 @@
+DEFINIÇÕES:
+< e > : não terminais
+{ } : pode repetir
+[ ] : opcional
+PROGRAMA E BLOCOS
+1. <programa> ➝ principal <identificador>; <bloco>
+2. <bloco> ➝ [<definicao de tipos>]
+[<definicao de variaveis>]
+[<definicao de sub-rotinas>]
+<comando composto>
+
+DECLARAÇÕES
+3. <definicao de tipos> ➝ type <identificador> = <tipo> {; <identificador> = <tipo>};
+4. <tipo> ➝ <identificador> | int | boolean | double | char
+5. <definicao de variaveis> ➝ var <lista de identificadores> : <tipo> {;<lista de identificadores> : <tipo>};
+6. <lista de identificadores> ➝ <identificador> {, <identificador>}
+7. <definicao de sub-rotinas> ➝ {<definicao de procedimento>;
+| <definição de funcao>;}
+
+8. <definicao de procedimento> ➝ procedure <identificador> [<parametros formais>] ; <bloco>
+9. <definição de funcao> ➝ function <identificador> [<parametros formais>] : identificador ; <bloco>
+*10. <parametros formais> ➝ (<lista de identificadores>: <identificador> {; <lista de identificadores>:
+<identificador>})
+COMANDOS
+11. <comando composto> ➝ begin <comando sem rotulo>; {<comando sem rotulo>;} end
+12. <comando sem rotulo> ➝ <atribuicao>
+|<chamada de procedimento>
+|<comando condicional>
+|<comando repetitivo>
+13. <atribuicao> ➝ <variavel> := <expressao>
+14. <chamada de procedimento> ➝ <identificador> [ (<lista de expressoes>)]
+**15. <comando condicional> ➝ if <expressao> then <comando sem rotulo> [else <comando sem rotulo>]
+**16. <comando repetitivo> ➝ while <expressao> do <comando sem rotulo>
+OBS: Os comandos de entrada (read) e saída (print) estão incluídos nas chamadas de procedimentos
+EXPRESSÕES
+17. <lista de identificadores> ➝ <identificador> {,<identificador>}
+18. <lista de expressoes> ➝ <expressao> {,<expressao>}
+19. <expressao> ➝ <expressao simples> [<relacao> <expressao simples>]
+20. <relacao> ➝ =| <>| < | <= | > | >=
+21. <expressao simples> ➝ [+ | -] <termo> {<operador1> <termo>}
+22. <termo> ➝ <fator> {<operador2> <fator>}
+23. <operador1> ➝ + | - | or
+24. <operador2> ➝ * | div | and
+25. <fator> ➝ <variavel>
+|<digito>
+|<chamada de funcao>
+|(<expressao>)
+26. <variavel> ➝ <identificador>
+27. <chamada de funcao> ➝ <identificador> [ (<lista de expressoes>)]
+* sem passagem de paramentro por referencia
+** apenas um tipo de comando condicional e repetitivo será especificado

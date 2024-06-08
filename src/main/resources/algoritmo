@@ -1,0 +1,281 @@
+sintatico()
+inicio
+    lexico.obter_token()
+    se token.conteudo ≠ "principal" entao
+        erro "principal esperado"
+    lexico.obter_token()
+    se token.classe ≠ IDENTIFICADOR entao
+        erro "Identificador esperado"
+    lexico.obter_token()
+    se token.conteudo ≠ ";" entao
+        erro "; esperado"
+    lexico.obter_token()
+    bloco()
+fim
+
+bloco()
+inicio
+    se token.conteudo == "type" entao
+        definicao_de_tipos()
+    se token.conteudo == "var" entao
+        definicao_de_variaveis()
+    enquanto token.conteudo == "procedure" ou token.conteudo == "function" faca
+        definicao_de_sub_rotinas()
+    comando_composto()
+fim
+
+definicao_de_tipos()
+inicio
+    lexico.obter_token()
+    se token.classe ≠ IDENTIFICADOR entao
+        erro "Identificador esperado na definição de tipos"
+    lexico.obter_token()
+    se token.conteudo ≠ "=" entao
+        erro "= esperado na definição de tipos"
+    lexico.obter_token()
+    tipo()
+    enquanto token.conteudo == ";" faca
+        lexico.obter_token()
+        se token.classe ≠ IDENTIFICADOR entao
+            erro "Identificador esperado na definição de tipos"
+        lexico.obter_token()
+        se token.conteudo ≠ "=" entao
+            erro "= esperado na definição de tipos"
+        lexico.obter_token()
+        tipo()
+fim
+
+definicao_de_variaveis()
+inicio
+    lexico.obter_token()
+    lista_de_identificadores()
+    se token.conteudo ≠ ":" entao
+        erro ": esperado na definição de variáveis"
+    lexico.obter_token()
+    tipo()
+    enquanto token.conteudo == ";" faca
+        lexico.obter_token()
+        lista_de_identificadores()
+        se token.conteudo ≠ ":" entao
+            erro ": esperado na definição de variáveis"
+        lexico.obter_token()
+        tipo()
+fim
+
+definicao_de_sub_rotinas()
+inicio
+    se token.conteudo == "procedure" entao
+        definicao_de_procedimento()
+    senao se token.conteudo == "function" entao
+        definicao_de_funcao()
+    senao
+        erro "procedure ou function esperado"
+fim
+
+definicao_de_procedimento()
+inicio
+    lexico.obter_token()
+    se token.classe ≠ IDENTIFICADOR entao
+        erro "Identificador esperado na definição de procedimento"
+    lexico.obter_token()
+    se token.conteudo == "(" entao
+        parametros_formais()
+    se token.conteudo ≠ ";" entao
+        erro "; esperado na definição de procedimento"
+    lexico.obter_token()
+    bloco()
+fim
+
+definicao_de_funcao()
+inicio
+    lexico.obter_token()
+    se token.classe ≠ IDENTIFICADOR entao
+        erro "Identificador esperado na definição de função"
+    lexico.obter_token()
+    se token.conteudo == "(" entao
+        parametros_formais()
+    se token.conteudo ≠ ":" entao
+        erro ": esperado na definição de função"
+    lexico.obter_token()
+    se token.classe ≠ IDENTIFICADOR entao
+        erro "Identificador do tipo de retorno esperado na definição de função"
+    lexico.obter_token()
+    se token.conteudo ≠ ";" entao
+        erro "; esperado na definição de função"
+    lexico.obter_token()
+    bloco()
+fim
+
+parametros_formais()
+inicio
+    lexico.obter_token()  // Consome o '('
+    lista_de_identificadores()
+    se token.conteudo ≠ ":" entao
+        erro ": esperado nos parâmetros formais"
+    lexico.obter_token()
+    se token.classe ≠ IDENTIFICADOR entao
+        erro "Identificador esperado nos parâmetros formais"
+    lexico.obter_token()
+    enquanto token.conteudo == ";" faca
+        lexico.obter_token()
+        lista_de_identificadores()
+        se token.conteudo ≠ ":" entao
+            erro ": esperado nos parâmetros formais"
+        lexico.obter_token()
+        se token.classe ≠ IDENTIFICADOR entao
+            erro "Identificador esperado nos parâmetros formais"
+        lexico.obter_token()
+    se token.conteudo ≠ ")" entao
+        erro ") esperado para fechar os parâmetros formais"
+    lexico.obter_token()
+fim
+
+comando_composto()
+inicio
+    se token.conteudo ≠ "begin" entao
+        erro "begin esperado no comando composto"
+    lexico.obter_token()
+    comando_sem_rotulo()
+    enquanto token.conteudo == ";" faca
+        lexico.obter_token()
+        comando_sem_rotulo()
+    se token.conteudo ≠ "end" entao
+        erro "end esperado no comando composto"
+    lexico.obter_token()
+fim
+
+comando_sem_rotulo()
+inicio
+    se token.classe == IDENTIFICADOR entao
+        lexico.obter_token()
+        se token.conteudo == ":=" entao
+            atribuicao()
+        senao se token.conteudo == "(" entao
+            chamada_de_procedimento()
+        senao
+            erro ":= ou ( esperado após identificador"
+    senao se token.conteudo == "if" entao
+        comando_condicional()
+    senao se token.conteudo == "while" entao
+        comando_repetitivo()
+    senao
+        erro "Comando inválido"
+fim
+
+atribuicao()
+inicio
+    lexico.obter_token()  // Consome o ':='
+    expressao()
+fim
+
+chamada_de_procedimento()
+inicio
+    lexico.obter_token()  // Consome o '('
+    lista_de_expressoes()
+    se token.conteudo ≠ ")" entao
+        erro ") esperado na chamada de procedimento"
+    lexico.obter_token()
+fim
+
+comando_condicional()
+inicio
+    lexico.obter_token()  // Consome o 'if'
+    expressao()
+    se token.conteudo ≠ "then" entao
+        erro "then esperado no comando condicional"
+    lexico.obter_token()
+    comando_sem_rotulo()
+    se token.conteudo == "else" entao
+        lexico.obter_token()
+        comando_sem_rotulo()
+fim
+
+comando_repetitivo()
+inicio
+    lexico.obter_token()  // Consome o 'while'
+    expressao()
+    se token.conteudo ≠ "do" entao
+        erro "do esperado no comando repetitivo"
+    lexico.obter_token()
+    comando_sem_rotulo()
+fim
+
+expressao()
+inicio
+    expressao_simples()
+    se token.conteudo == "=" ou token.conteudo == "<>" ou token.conteudo == "<" ou token.conteudo == "<=" ou token.conteudo == ">" ou token.conteudo == ">=" entao
+        lexico.obter_token()
+        expressao_simples()
+fim
+
+expressao_simples()
+inicio
+    se token.conteudo == "+" ou token.conteudo == "-" entao
+        lexico.obter_token()
+    termo()
+    enquanto token.conteudo == "+" ou token.conteudo == "-" ou token.conteudo == "or" faca
+        lexico.obter_token()
+        termo()
+fim
+
+termo()
+inicio
+    fator()
+    enquanto token.conteudo == "*" ou token.conteudo == "div" ou token.conteudo == "and" faca
+        lexico.obter_token()
+        fator()
+fim
+
+fator()
+inicio
+    se token.classe == IDENTIFICADOR entao
+        lexico.obter_token()
+        se token.conteudo == "(" entao
+            chamada_de_funcao()
+    senao se token.classe == DIGITO entao
+        lexico.obter_token()
+    senao se token.conteudo == "(" entao
+        lexico.obter_token()
+        expressao()
+        se token.conteudo ≠ ")" entao
+            erro ") esperado após a expressão"
+        lexico.obter_token()
+    senao
+        erro "Fator inválido"
+fim
+
+chamada_de_funcao()
+inicio
+    lexico.obter_token()  // Consome o '('
+    lista_de_expressoes()
+    se token.conteudo ≠ ")" entao
+        erro ") esperado na chamada de função"
+    lexico.obter_token()
+fim
+
+lista_de_identificadores()
+inicio
+    se token.classe ≠ IDENTIFICADOR entao
+        erro "Identificador esperado na lista de identificadores"
+    lexico.obter_token()
+    enquanto token.conteudo == "," faca
+        lexico.obter_token()
+        se token.classe ≠ IDENTIFICADOR entao
+            erro "Identificador esperado na lista de identificadores"
+        lexico.obter_token()
+fim
+
+lista_de_expressoes()
+inicio
+    expressao()
+    enquanto token.conteudo == "," faca
+        lexico.obter_token()
+        expressao()
+fim
+
+tipo()
+inicio
+    se token.classe ≠ IDENTIFICADOR e token.conteudo ≠ "int" e token.conteudo ≠ "boolean" e token.conteudo ≠ "double" e token.conteudo ≠ "char" então
+      erro "Tipo inválido"
+    lexico.obter_token()
+fim

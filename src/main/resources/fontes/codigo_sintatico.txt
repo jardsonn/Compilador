@@ -16,7 +16,7 @@ begin
   if soma >= 10 then
     x := 10
   else
-    x := 0;
+       x := 0;
 end
 
 begin

@@ -61,7 +61,6 @@ class Tokenizer(private val sourcePath: String) {
             exitProcessWithError(lexical)
         }
 
-        println(lexical)
         return lexical as Token
     }
 

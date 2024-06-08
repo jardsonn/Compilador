@@ -142,6 +142,7 @@ class Parser(private val sourcePath: String) {
         comsumeCurrentTokenAndAdvance(Tokens.RPAREN)
     }
 
+    //    Comando composto
     private fun compoundCommand() {
         comsumeCurrentTokenAndAdvance(Tokens.BEGIN)
         unlabeledCommand() // Comando sem rótulo
@@ -178,8 +179,6 @@ class Parser(private val sourcePath: String) {
             conditionalCommand() // comando condicional
         } else if (currentToken?.token == Tokens.WHILE) {
             repetitiveCommand() // comando repetitivo
-        } else {
-//            exitProcessWithError("Comando inválido")
         }
     }
 
@@ -195,6 +194,9 @@ class Parser(private val sourcePath: String) {
         expression()
         comsumeCurrentTokenAndAdvance(Tokens.THEN)
         unlabeledCommand()
+//        if (currentToken?.token == Tokens.SEMICOLON) {
+//            advanceToNextToken()
+//        }
         if (currentToken?.token == Tokens.ELSE) {
             advanceToNextToken()
             unlabeledCommand()
