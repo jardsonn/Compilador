@@ -1,7 +1,23 @@
 # Compilador
+Compilador para a disciplina de Compiladores.
+
+## Índice
+1. [Léxico](#léxico)
+   - [Identificadores](#identificadores)
+   - [Palavras Reservadas](#palavras-reservadas)
+   - [Símbolos Especiais](#símbolos-especiais)
+   - [Comentários](#comentários)
+   - [Dígitos](#dígitos)
+   - [Autômatos](#autômatos)
+2. [Sintático](#sintático)
+   - [Definições](#definições)
+   - [Programa e Bloco](#programa-e-blocos)
+   - [Declarações](#declarações)
+   - [Comandos](#comandos)
+   - [Expressões](#expressões)
 
 ## Léxico
-Compilador para a disciplina de Compiladores. Abaixo estão as especificações para o analisador léxico:
+Abaixo estão as especificações para o analisador léxico:
 
 #### Identificadores
 
