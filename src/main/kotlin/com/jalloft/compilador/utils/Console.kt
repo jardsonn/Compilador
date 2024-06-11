@@ -16,7 +16,7 @@ fun printError(tokens: Tokens, token: Token?){
     val bold = "\u001b[1m"
     val redColor = "\u001b[31m"
     val reset = "\u001b[0m"
-    println("${bold}${redColor}Syntax Error:${reset} ${redColor}'${tokens.content ?: tokens.name.lowercase()}' era esperado na linha ${token?.line}${reset}")
+    println("${bold}${redColor}Syntax Error:${reset} ${redColor}'${tokens.content ?: tokens.name.lowercase()}' era esperado na linha ${token?.line?.minus(1)}${reset}")
 }
 
 fun printError(errorMsg: String){

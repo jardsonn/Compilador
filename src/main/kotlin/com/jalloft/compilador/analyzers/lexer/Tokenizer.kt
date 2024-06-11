@@ -382,7 +382,7 @@ class Tokenizer(private val sourcePath: String) {
 
         if (state == CommentStates.STATE_0 || state == CommentStates.STATE_1 || state == CommentStates.STATE_3) {
             return
-        } else if ((state != CommentStates.STATE_9 && !isEOF())) {
+        } else if ((state != CommentStates.STATE_9)) {
             exitProcessWithError(
                 LexicalError(
                     ErrorType.LexicalError,

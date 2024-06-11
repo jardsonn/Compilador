@@ -1,4 +1,9 @@
-principal Principal;
+principal teste;
 begin
-   x := 10
+       @@ instrucoes basicas
+        x_2:=3.5;
+        x_2:=y+1.5;
+
+        if x >= 4 then
+            x3 := 3.5;
 end

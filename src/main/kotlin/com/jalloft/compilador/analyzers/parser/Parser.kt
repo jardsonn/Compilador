@@ -142,24 +142,17 @@ class Parser(private val sourcePath: String) {
         comsumeCurrentTokenAndAdvance(Tokens.RPAREN)
     }
 
-    //    Comando composto
     private fun compoundCommand() {
         comsumeCurrentTokenAndAdvance(Tokens.BEGIN)
         unlabeledCommand() // Comando sem rótulo
-        while (currentToken?.token == Tokens.SEMICOLON) {
-            advanceToNextToken()
+        comsumeCurrentTokenAndAdvance(Tokens.SEMICOLON)
+        while (currentToken?.token == Tokens.IDENTIFIER || currentToken?.token == Tokens.IF || currentToken?.token == Tokens.WHILE) {
             unlabeledCommand()
+            comsumeCurrentTokenAndAdvance(Tokens.SEMICOLON)
         }
         comsumeCurrentTokenAndAdvance(Tokens.END)
     }
 
-    //    12. <comando sem rotulo> ➝ <atribuicao>
-//    |<chamada de procedimento>
-//    |<comando condicional>
-//    |<comando repetitivo>
-//    13. <atribuicao> ➝ <variavel> := <expressao>
-//    26. <variavel> ➝ <identificador>
-//    19. <expressao> ➝ <expressao simples> [<relacao> <expressao simples>]
     private fun unlabeledCommand() {
         if (currentToken?.token == Tokens.IDENTIFIER) {
             advanceToNextToken()
@@ -177,10 +170,10 @@ class Parser(private val sourcePath: String) {
             }
         } else if (currentToken?.token == Tokens.IF) {
             conditionalCommand() // comando condicional
-        }
-        else if (currentToken?.token == Tokens.WHILE) {
+        } else if (currentToken?.token == Tokens.WHILE) {
             repetitiveCommand() // comando repetitivo
         }
+
     }
 
     private fun repetitiveCommand() {
@@ -298,7 +291,6 @@ class Parser(private val sourcePath: String) {
 
     private fun exitProcessWithError(tokens: Tokens) {
         exitProcessWithError(tokens, currentToken)
-
     }
 
 }
