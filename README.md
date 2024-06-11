@@ -1,22 +1,22 @@
 # Compilador
 Compilador para a disciplina de Compiladores.
 
-## Índice
-1. [Léxico](#léxico)
+##### Índice
+1. [Analisador Léxico](#analisador-léxico)
    - [Identificadores](#identificadores)
    - [Palavras Reservadas](#palavras-reservadas)
    - [Símbolos Especiais](#símbolos-especiais)
    - [Comentários](#comentários)
    - [Dígitos](#dígitos)
    - [Autômatos](#autômatos)
-2. [Sintático](#sintático)
+2. [Analisador Sintático](#analisador-sintático)
    - [Definições](#definições)
    - [Programa e Bloco](#programa-e-blocos)
    - [Declarações](#declarações)
    - [Comandos](#comandos)
    - [Expressões](#expressões)
 
-## Léxico
+## Analisador Léxico
 Abaixo estão as especificações para o analisador léxico:
 
 #### Identificadores
@@ -94,8 +94,8 @@ Os autômatos são essenciais na análise e reconhecimento de padrões dentro do
 #### Símbolos Especiais
 <img src="automatos/automato_simbolos_especiais.png" alt="Símbolos Especiais"/>
 
-## Sintático
-
+## Analisador Sintático
+O analisador sintático é uma parte crucial de um compilador, responsável por interpretar a estrutura gramatical do código-fonte. Abaixo está a especificação do analisador sintático para esse compilador.
 #### DEFINIÇÕES:
 
 - `< e >` : não terminais
