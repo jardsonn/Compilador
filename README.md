@@ -27,7 +27,7 @@ Abaixo estão as especificações para o analisador léxico:
 
 Os identificadores são compostos por letras (maiúsculas ou minúsculas), números, e os caracteres _ (underscore) e @ (arroba). Eles devem iniciar necessariamente com uma letra. É crucial notar que eles não podem começar ou terminar com _ (underscore) ou @ (arroba). Além disso, se o identificador contiver o caractere @ (arroba), não pode conter o _ (underscore) simultaneamente.
 
-Claro, aqui está a tabela com os exemplos de identificadores válidos e inválidos:
+Exemplos de identificadores válidos e inválidos:
 
 | Identificadores Válidos | Identificadores Inválidos |
 |-------------------------|---------------------------|
